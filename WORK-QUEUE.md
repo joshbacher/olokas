@@ -24,7 +24,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 ## Phase 2: Free audit tool
 
 ### 2.1 — Free audit form UI
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `app/(marketing)/audit/page.tsx`, possibly new `components/audit-form.tsx`
 - **Spec:**
   - Replace placeholder `app/(marketing)/audit/page.tsx` with a full form UI.

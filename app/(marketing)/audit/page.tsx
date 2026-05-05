@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuditForm } from "@/components/audit-form";
 import { BrandMark } from "@/components/brand-mark";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -14,16 +15,23 @@ export default function AuditPage() {
       <header className="mb-[6vh]">
         <BrandMark />
       </header>
-      <h1 className="mb-3 text-3xl font-semibold tracking-tight">
-        Free AI search audit
-      </h1>
-      <p className="mb-8 max-w-[540px] text-muted-foreground">
-        Coming soon. The free audit will run a single scan across all four
-        engines and email you a one-page report.
-      </p>
-      <p className="text-sm text-muted-foreground">
-        Tool implementation lands in Phase 2.
-      </p>
+
+      <section className="mb-8">
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight">
+          Free AI search audit
+        </h1>
+        <p className="max-w-[580px] text-[15px] leading-[1.55] text-muted-foreground">
+          One scan across ChatGPT, Perplexity, Google AI Overviews, and Claude.
+          We&apos;ll tell you whether your domain shows up, who&apos;s showing
+          up instead, and what the engines are saying about you. Email report,
+          one page.
+        </p>
+      </section>
+
+      <section>
+        <AuditForm />
+      </section>
+
       <SiteFooter />
     </main>
   );
