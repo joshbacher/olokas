@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 51 16% 97%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 7%;
+    --primary-foreground: 51 16% 97%;
+    --secondary: 51 12% 92%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 51 12% 92%;
+    --muted-foreground: 0 0% 33%;
+    --accent: 17 100% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 47 13% 88%;
+    --input: 47 13% 88%;
+    --ring: 17 100% 60%;
+    --radius: 0.375rem;
+  }
+
+  .dark {
+    --background: 60 4% 5%;
+    --foreground: 60 25% 95%;
+    --card: 60 4% 8%;
+    --card-foreground: 60 25% 95%;
+    --popover: 60 4% 8%;
+    --popover-foreground: 60 25% 95%;
+    --primary: 60 25% 95%;
+    --primary-foreground: 60 4% 5%;
+    --secondary: 30 4% 15%;
+    --secondary-foreground: 60 25% 95%;
+    --muted: 30 4% 15%;
+    --muted-foreground: 30 7% 58%;
+    --accent: 17 100% 67%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 60 25% 95%;
+    --border: 30 4% 17%;
+    --input: 30 4% 17%;
+    --ring: 17 100% 67%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      --background: 60 4% 5%;
+      --foreground: 60 25% 95%;
+      --card: 60 4% 8%;
+      --card-foreground: 60 25% 95%;
+      --popover: 60 4% 8%;
+      --popover-foreground: 60 25% 95%;
+      --primary: 60 25% 95%;
+      --primary-foreground: 60 4% 5%;
+      --secondary: 30 4% 15%;
+      --secondary-foreground: 60 25% 95%;
+      --muted: 30 4% 15%;
+      --muted-foreground: 30 7% 58%;
+      --accent: 17 100% 67%;
+      --accent-foreground: 0 0% 100%;
+      --destructive: 0 63% 31%;
+      --destructive-foreground: 60 25% 95%;
+      --border: 30 4% 17%;
+      --input: 30 4% 17%;
+      --ring: 17 100% 67%;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

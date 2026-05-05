@@ -1,6 +1,12 @@
 # Dependencies
 node_modules/
 .pnpm-store/
+.yarn/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
 
 # Vercel
 .vercel/
@@ -9,6 +15,7 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.production
 .secrets/
 
 # Editor / OS
@@ -21,5 +28,3 @@ Thumbs.db
 # Build output
 dist/
 build/
-out/
-.next/
