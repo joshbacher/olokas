@@ -37,7 +37,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** `/audit` page renders the form, form validates client-side, submit hits `/api/audit` (which still returns 501), build clean.
 
 ### 2.2 — Query suggestion engine (helper, no UI yet)
-- **Status:** PENDING
+- **Status:** DONE (commit dfb5c41)
 - **Files:** `lib/queries/suggest.ts`, plus a tiny test page `app/(marketing)/audit/suggest-test/page.tsx` (gated to dev only via `process.env.NODE_ENV`)
 - **Spec:**
   - Implement `suggestQueriesFromUrl(url: string): Promise<string[]>` that:
