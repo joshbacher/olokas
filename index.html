@@ -175,6 +175,43 @@
       button { width: 100%; }
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://olokas.com/#organization",
+        "name": "Olokas",
+        "url": "https://olokas.com",
+        "description": "Monitor how AI search engines (ChatGPT, Perplexity, Google AI Overviews, Claude) discover and cite your business website.",
+        "email": "hello@olokas.com",
+        "foundingDate": "2026"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://olokas.com/#website",
+        "url": "https://olokas.com",
+        "name": "Olokas",
+        "description": "AI search visibility, measured.",
+        "publisher": { "@id": "https://olokas.com/#organization" }
+      },
+      {
+        "@type": "Service",
+        "name": "Olokas — AI Search Visibility Monitoring",
+        "provider": { "@id": "https://olokas.com/#organization" },
+        "description": "Weekly scans of ChatGPT, Perplexity, Google AI Overviews, and Claude to measure how AI search engines describe and cite your business website.",
+        "areaServed": "Worldwide",
+        "offers": {
+          "@type": "Offer",
+          "price": "39",
+          "priceCurrency": "USD",
+          "description": "Starter tier: 1 domain, up to 10 target queries, weekly scans across all four AI search engines"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <main>
