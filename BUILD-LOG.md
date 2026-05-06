@@ -20,6 +20,7 @@ Each entry is one autonomous build run. Newest at top.
 - Result: SUCCESS
 - Files changed: 5
 - Notes: POST /api/audit returns { auditId, statusUrl } (zod-validated, UUID minted in-route, no persistence yet); GET /api/audit/[auditId]/status stubbed; /audit/[auditId] polls every 3s up to 90s with rotating did-you-know cards from lib/audit/facts.ts; audit form redirects to statusUrl via next/navigation; tsc and next build clean.
+- Post-push verification: site OK (HTTP 200, hero copy intact)
 
 ## 2026-05-05 18:07:51 UTC — Run #2
 - Item: 2.2 (Query suggestion engine helper)
