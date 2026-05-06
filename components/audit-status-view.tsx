@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { AuditReportView } from "@/components/audit-report";
 import { AUDIT_FACTS } from "@/lib/audit/facts";
+import { generateMockReport, type AuditReport } from "@/lib/audit/mock-report";
 
 const POLL_INTERVAL_MS = 3_000;
 const POLL_TIMEOUT_MS = 90_000;
@@ -27,7 +29,7 @@ export function AuditStatusView({ auditId }: { auditId: string }) {
 
   // Polling: hit the (stubbed) status endpoint every few seconds while we
   // wait for the audit to "complete". The client carries the 90s timer; the
-  // endpoint's response is ignored for 2.3 because it's still a stub.
+  // endpoint's response is ignored for 2.3/2.4 because it's still a stub.
   React.useEffect(() => {
     const start = Date.now();
     let cancelled = false;
@@ -77,7 +79,7 @@ export function AuditStatusView({ auditId }: { auditId: string }) {
   );
 
   if (state.phase === "ready") {
-    return <AuditReadyMock auditId={auditId} />;
+    return <AuditReady auditId={auditId} />;
   }
 
   return (
@@ -142,24 +144,65 @@ function FactCard({ index }: { index: number }) {
   );
 }
 
-function AuditReadyMock({ auditId }: { auditId: string }) {
-  return (
-    <section className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
+// Pulls the {domain, queries} we stashed at submit time so the mock report
+// reflects what the user actually asked. SessionStorage is fine for now —
+// 2.3 explicitly skipped persistence, and the data only needs to live until
+// the report renders. If the storage key is missing (e.g., someone opened
+// the share URL fresh in a new tab), we fall back to placeholders — Phase
+// 2.5 introduces a real share path that loads from the server.
+const STORAGE_PREFIX = "olokas:audit:";
+
+type StoredAuditInput = {
+  domain: string;
+  queries: string[];
+};
+
+function readStoredAuditInput(auditId: string): StoredAuditInput {
+  const fallback: StoredAuditInput = {
+    domain: "yourdomain.com",
+    queries: [],
+  };
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.sessionStorage.getItem(`${STORAGE_PREFIX}${auditId}`);
+    if (!raw) return fallback;
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      typeof (parsed as { domain?: unknown }).domain !== "string" ||
+      !Array.isArray((parsed as { queries?: unknown }).queries)
+    ) {
+      return fallback;
+    }
+    const domain = (parsed as { domain: string }).domain;
+    const queries = ((parsed as { queries: unknown[] }).queries).filter(
+      (q): q is string => typeof q === "string"
+    );
+    return { domain, queries };
+  } catch {
+    return fallback;
+  }
+}
+
+function AuditReady({ auditId }: { auditId: string }) {
+  const [report, setReport] = React.useState<AuditReport | null>(null);
+
+  React.useEffect(() => {
+    const input = readStoredAuditInput(auditId);
+    setReport(generateMockReport(input.domain, input.queries));
+  }, [auditId]);
+
+  if (!report) {
+    return (
+      <section className="flex flex-col gap-3">
         <h1 className="text-3xl font-semibold tracking-tight">
           Your audit is ready.
         </h1>
-        <p className="max-w-[580px] text-[15px] leading-[1.55] text-muted-foreground">
-          The full report renders here in the next build step. For now this is
-          a placeholder so the flow is wired end to end.
-        </p>
-      </header>
-      <p className="text-xs text-muted-foreground">
-        Audit ID:{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px]">
-          {auditId}
-        </code>
-      </p>
-    </section>
-  );
+        <p className="text-sm text-muted-foreground">Preparing your report…</p>
+      </section>
+    );
+  }
+
+  return <AuditReportView report={report} />;
 }

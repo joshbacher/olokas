@@ -62,7 +62,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Submit → redirect → 90s polling page with rotating facts → mock completion message. Build clean.
 
 ### 2.4 — Mock report data + rendering
-- **Status:** PENDING
+- **Status:** DONE (commit 844f783)
 - **Files:** `lib/audit/mock-report.ts`, `components/audit-report.tsx`, integrate into `app/(marketing)/audit/[auditId]/page.tsx`
 - **Spec:**
   - `mock-report.ts` exports `generateMockReport(domain: string, queries: string[]): AuditReport` returning realistic-looking data.

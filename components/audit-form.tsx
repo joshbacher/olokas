@@ -142,6 +142,26 @@ export function AuditForm() {
         return;
       }
 
+      // Stash the inputs so the polling/report page can render against the
+      // user's actual domain and queries. Phase 2.3 deliberately skipped
+      // persistence; sessionStorage is a fine placeholder until 2.5 adds a
+      // real shareable record. If storage is unavailable (Safari private
+      // mode, quota exceeded, etc.) the report falls back to placeholder
+      // copy — that's acceptable for the mock flow.
+      try {
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(
+            `olokas:audit:${data.auditId}`,
+            JSON.stringify({
+              domain: payload.domain,
+              queries: payload.queries,
+            })
+          );
+        }
+      } catch {
+        // ignore — report falls back to placeholder data
+      }
+
       // Keep the button in its loading state through the navigation; the
       // status page takes over from here.
       router.push(data.statusUrl);
