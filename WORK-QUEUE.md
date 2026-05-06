@@ -50,7 +50,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Function exists, has unit-test-ready shape, the dev test page calls it and shows output, build clean.
 
 ### 2.3 — Free audit submit handler with mock job enqueue
-- **Status:** PENDING
+- **Status:** DONE (commit a9fb0c5)
 - **Files:** `app/api/audit/route.ts`, `app/(marketing)/audit/[auditId]/page.tsx`
 - **Spec:**
   - `POST /api/audit` accepts `{ domain, email, queries[] }`.

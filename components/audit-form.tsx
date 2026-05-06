@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,22 @@ type FieldErrors = {
   queries?: string;
   submit?: string;
 };
+
+type AuditAcceptedResponse = {
+  auditId: string;
+  statusUrl: string;
+};
+
+function isAuditAcceptedResponse(value: unknown): value is AuditAcceptedResponse {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.auditId === "string" &&
+    v.auditId.length > 0 &&
+    typeof v.statusUrl === "string" &&
+    v.statusUrl.startsWith("/audit/")
+  );
+}
 
 function normalizeDomain(value: string): string {
   return value.trim().replace(/\s+/g, "");
@@ -40,6 +57,7 @@ function isValidEmail(value: string): boolean {
 }
 
 export function AuditForm() {
+  const router = useRouter();
   const [domain, setDomain] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [queries, setQueries] = React.useState<string[]>(() =>
@@ -102,8 +120,6 @@ export function AuditForm() {
       });
 
       if (!resp.ok) {
-        // Phase 2.3 will read auditId/statusUrl from the response and redirect.
-        // For now, surface a friendly error if the stub returns non-2xx.
         const data: { error?: string } = await resp
           .json()
           .catch(() => ({} as { error?: string }));
@@ -116,8 +132,19 @@ export function AuditForm() {
         return;
       }
 
-      // Phase 2.3 will handle the redirect to the status page.
-      // The button stays in its "Starting your audit…" state until then.
+      const data: unknown = await resp.json().catch(() => null);
+      if (!isAuditAcceptedResponse(data)) {
+        setErrors({
+          submit:
+            "Something went sideways on our end. Please try again in a moment.",
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      // Keep the button in its loading state through the navigation; the
+      // status page takes over from here.
+      router.push(data.statusUrl);
     } catch {
       setErrors({
         submit:
@@ -168,11 +195,12 @@ export function AuditForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="audit-email">Email</Label>
+        <Label htmlFor="audit-email">Where should we send the report?</Label>
         <Input
           id="audit-email"
           name="email"
           type="email"
+          inputMode="email"
           autoComplete="email"
           placeholder="you@yourbusiness.com"
           value={email}
@@ -187,13 +215,10 @@ export function AuditForm() {
             {errors.email}
           </p>
         )}
-        <p className="text-xs text-muted-foreground">
-          We&apos;ll send the report here. One scan per email per week.
-        </p>
       </div>
 
       <fieldset
-        className="flex flex-col gap-3 border-t border-border pt-5"
+        className="flex flex-col gap-3 border-0 p-0"
         aria-describedby={queriesErrorId}
       >
         <legend className="mb-1 text-sm font-medium">
