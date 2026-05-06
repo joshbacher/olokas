@@ -20,6 +20,7 @@ Each entry is one autonomous build run. Newest at top.
 - Result: SUCCESS
 - Files changed: 5
 - Notes: emails/FreeAuditReport.tsx — hand-rolled email-safe React template (table-only layout, inline styles, max-width 600px, hex palette mirrored from globals.css). Canonical layout doc; Phase 5 swaps to react-email. lib/audit/render-email.ts — pure-string builder mirroring the React template 1:1, exporting renderFreeAuditReportEmail(report, opts) -> {subject, preview, html} (Next.js 14 forbids react-dom/server in the app/ graph, so we render via a parallel string path; doc note in component flags the keep-in-sync requirement). New POST /api/audit/[auditId]/email route renders for a given audit (zod-validated body), returns full HTML (~11 KB) plus subject + preheader. components/audit-status-view.tsx now POSTs to that route when the audit flips ready and stashes lastEmail (subject/preview/html/generatedAt) on the sessionStorage record so downstream Phase 5 code has something to read. Smoke-tested end-to-end via dev server: balanced tags (1 html, 15 table/tbody, 31 tr, 44 td, 11 p, 1 h1, 24 span, 3 a), zero React-isms leaked into HTML output. tsc and next build clean.
+- Post-push verification: site OK (HTTP 200, hero title intact, /audit HTTP 200 with form, /pricing HTTP 200, /og-audit.png 37 KB)
 
 ## 2026-05-06 19:08:10 UTC — Run #5
 - Item: 2.5 (Shareable audit URL)
