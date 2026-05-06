@@ -152,9 +152,18 @@ function FactCard({ index }: { index: number }) {
 // 2.5 introduces a real share path that loads from the server.
 const STORAGE_PREFIX = "olokas:audit:";
 
+type StoredEmail = {
+  subject: string;
+  preview: string;
+  html: string;
+  generatedAt: string;
+};
+
 type StoredAuditInput = {
   domain: string;
   queries: string[];
+  /** The most recently rendered email body. Populated post-2.6. */
+  lastEmail?: StoredEmail;
 };
 
 function readStoredAuditInput(auditId: string): StoredAuditInput {
@@ -179,10 +188,54 @@ function readStoredAuditInput(auditId: string): StoredAuditInput {
     const queries = ((parsed as { queries: unknown[] }).queries).filter(
       (q): q is string => typeof q === "string"
     );
-    return { domain, queries };
+    const rawLastEmail = (parsed as { lastEmail?: unknown }).lastEmail;
+    const lastEmail = isStoredEmail(rawLastEmail) ? rawLastEmail : undefined;
+    return { domain, queries, lastEmail };
   } catch {
     return fallback;
   }
+}
+
+function isStoredEmail(value: unknown): value is StoredEmail {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.subject === "string" &&
+    typeof v.preview === "string" &&
+    typeof v.html === "string" &&
+    typeof v.generatedAt === "string"
+  );
+}
+
+function writeStoredAuditInput(auditId: string, input: StoredAuditInput): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      `${STORAGE_PREFIX}${auditId}`,
+      JSON.stringify(input)
+    );
+  } catch {
+    // sessionStorage can be unavailable (private mode, quota). Failure here
+    // is non-critical — the email is a stub side effect, not user-facing.
+  }
+}
+
+type EmailRenderResponse = {
+  auditId: string;
+  subject: string;
+  preview: string;
+  html: string;
+};
+
+function isEmailRenderResponse(value: unknown): value is EmailRenderResponse {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.auditId === "string" &&
+    typeof v.subject === "string" &&
+    typeof v.preview === "string" &&
+    typeof v.html === "string"
+  );
 }
 
 function AuditReady({ auditId }: { auditId: string }) {
@@ -191,6 +244,55 @@ function AuditReady({ auditId }: { auditId: string }) {
   React.useEffect(() => {
     const input = readStoredAuditInput(auditId);
     setReport(generateMockReport(input.domain, input.queries));
+
+    // Phase 2.6 stub: ask the server to render the report email and stash
+    // the result on the audit data as `lastEmail`. Real sending lives in
+    // Phase 5 — this fetch only proves the rendering pipeline works
+    // end-to-end and gives downstream code something to read.
+    let cancelled = false;
+    const controller = new AbortController();
+    void (async () => {
+      // Skip if we already have a freshly-rendered email cached for this
+      // audit — avoids a duplicate render on every remount.
+      if (input.lastEmail) return;
+      try {
+        const res = await fetch(`/api/audit/${auditId}/email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            domain: input.domain,
+            queries: input.queries,
+          }),
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const body: unknown = await res.json();
+        if (!isEmailRenderResponse(body)) return;
+        if (cancelled) return;
+        writeStoredAuditInput(auditId, {
+          domain: input.domain,
+          queries: input.queries,
+          lastEmail: {
+            subject: body.subject,
+            preview: body.preview,
+            html: body.html,
+            generatedAt: new Date().toISOString(),
+          },
+        });
+      } catch {
+        // Fetch errors are non-fatal: the user already sees the report on
+        // screen. The email is a side-effect artifact for Phase 5.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [auditId]);
 
   if (!report) {

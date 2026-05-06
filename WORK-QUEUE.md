@@ -81,7 +81,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Report URL is shareable, copy button works, OG preview shows brand image when shared on X/LinkedIn.
 
 ### 2.6 — Email the report (mock for now)
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `emails/FreeAuditReport.tsx`, integrate into report flow
 - **Spec:**
   - React Email template `FreeAuditReport.tsx` that takes `AuditReport` props and renders email-friendly HTML.
