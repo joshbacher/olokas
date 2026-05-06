@@ -164,3 +164,152 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
   - Audit every page for proper `metadata` exports including `openGraph` and `twitter`.
   - Add `og:image` for each marketing page (use a generated default if none specified).
 - **DoD:** /sitemap.xml lists all routes, /robots.txt allows crawl, every page has metadata.
+
+---
+
+## Phase 3: Auth + Dashboard + Billing
+
+These items assume the Supabase migration has been run (it has — see commit notes on the migration step). Items marked **(needs Stripe creds)** can have their code written but won't function end-to-end until `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set in Vercel env vars. Code still ships; functionality activates when creds land.
+
+### 3.1 — Supabase Auth UI (sign-in / sign-up with magic link)
+- **Status:** PENDING
+- **Files:** `app/(auth)/login/page.tsx`, `app/(auth)/signup/page.tsx`, `app/(auth)/auth/callback/route.ts`, `components/auth/magic-link-form.tsx`
+- **Spec:**
+  - Replace the placeholder login/signup pages with real magic-link flows using `@supabase/ssr`.
+  - Login page: single email input + "Send magic link" button. On submit, calls `supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: ... } })`. Show success state ("Check your email") after sending.
+  - Signup page: same form (Supabase auth does sign-up + sign-in via magic link uniformly), but copy framed for new accounts.
+  - `app/(auth)/auth/callback/route.ts` handles the magic-link redirect: exchanges the code for a session, then redirects to `/app/dashboard` (or `/app/onboarding` if it's the user's first login — check by querying customers table for an existing row).
+  - Both pages: BrandMark at top, simple layout, uses shadcn Input + Button.
+- **DoD:** /login and /signup both render the magic-link form, callback route exchanges code for session and redirects, build clean.
+
+### 3.2 — Auth middleware (session refresh on every request)
+- **Status:** PENDING
+- **Files:** new `middleware.ts` at repo root, possibly update `lib/supabase/middleware.ts` helper
+- **Spec:**
+  - Per `@supabase/ssr` docs, add a `middleware.ts` that calls `supabase.auth.getUser()` on every request to refresh the session cookie.
+  - Matcher: skip static assets and Next.js internals (`/_next/*`, favicon, etc.) — only match real routes.
+  - The middleware runs ahead of layouts, ensuring `createClient()` in server components has fresh auth state.
+  - Don't redirect from middleware — that's the layout's job. Middleware just refreshes.
+- **DoD:** middleware.ts exists, build is clean, after a magic-link sign-in cookies persist across reloads.
+
+### 3.3 — Real /app/* auth guard
+- **Status:** PENDING
+- **Files:** `app/app/layout.tsx`
+- **Spec:**
+  - Replace the existing stub layout (which has a try/catch fallback to "allow through") with a real auth guard.
+  - At top of layout: `const supabase = createClient(); const { data: { user } } = await supabase.auth.getUser();` — if no user, `redirect('/login?next=' + currentPath)`.
+  - Keep a top nav inside the authed shell: brand on left, links to /app/dashboard, /app/queries, /app/reports, /app/settings, "Sign out" on right.
+  - Sign out: server action that calls `supabase.auth.signOut()` and redirects to `/`.
+  - Remove the "Dashboard scaffold" yellow notice banner that's there now.
+- **DoD:** Unauthenticated users hitting /app/* get redirected to /login. Authenticated users see the nav. Sign-out works.
+
+### 3.4 — Customer record provisioning fallback
+- **Status:** PENDING
+- **Files:** `lib/customers/ensure.ts`, integrated into `app/app/layout.tsx`
+- **Spec:**
+  - The Supabase migration includes a `handle_new_user` trigger that creates a `customers` row on auth.users insert. But triggers can fail silently in edge cases.
+  - `ensureCustomerRecord(userId, email)` checks if a customers row exists; if not, creates one (using service-role client, since RLS could block it via anon).
+  - Called from `/app/layout.tsx` right after auth check. Idempotent — safe to call every request.
+  - Returns the customer record so the layout can pass it to children via context.
+- **DoD:** New users (sign-up flow) reliably get a customers row even if the trigger fails. Existing users get their row fetched. Build clean.
+
+### 3.5 — Dashboard overview page
+- **Status:** PENDING
+- **Files:** `app/app/dashboard/page.tsx`, `components/dashboard/overview-cards.tsx`
+- **Spec:**
+  - Fetches the customer's domains, query count, last scan timestamp, and latest GEO score per engine (from scan_results table — empty for new users).
+  - Top section: 4 stat cards (Total domains, Active queries, Last scan, Avg GEO score across engines).
+  - Section: "Recent activity" — last 10 scan results across all queries, table format using shadcn Table primitives (you may need to install: `components/ui/table.tsx` if missing — minimal shadcn version).
+  - Empty state for fresh accounts: "Add your first domain in /app/queries" with link.
+- **DoD:** Dashboard renders for any authed user, shows real data from Supabase or empty state. Build clean.
+
+### 3.6 — Queries page (CRUD with plan limits)
+- **Status:** PENDING
+- **Files:** `app/app/queries/page.tsx`, `app/app/queries/actions.ts`, `components/queries/queries-table.tsx`
+- **Spec:**
+  - Lists all customer_queries scoped to the current customer (RLS handles the scoping; just SELECT *).
+  - Add Query: form with domain selector (from customer's domains), query text, optional priority flag.
+  - Edit / Delete via server actions in `actions.ts`.
+  - Enforce plan limits: count current queries vs `customers.query_limit` — if at limit, show upgrade CTA instead of Add form.
+  - Add Domain: simple form to insert into domains table (also check `customers.domain_limit`).
+- **DoD:** All CRUD operations work, RLS prevents seeing other users' data, plan limits enforced.
+
+### 3.7 — Reports page (list view)
+- **Status:** PENDING
+- **Files:** `app/app/reports/page.tsx`
+- **Spec:**
+  - Lists historical reports from the reports table for the current customer.
+  - Empty state: "Reports are generated weekly. You'll see your first report after your first scan completes."
+  - Each row: period_end date, status badge, "View" link.
+  - View links go to `/app/reports/[id]/page.tsx` — for now stub this with "Report viewer arrives in Phase 5.2".
+- **DoD:** /app/reports renders for any authed user, table populates with real data when reports exist, empty state otherwise.
+
+### 3.8 — Settings page (Stripe portal link + account info)
+- **Status:** PENDING
+- **Files:** `app/app/settings/page.tsx`, `app/app/settings/actions.ts`
+- **Spec:**
+  - Section: Account — shows email, plan, status. Read-only.
+  - Section: Billing — button "Manage subscription" that calls `/api/portal` and redirects to Stripe Customer Portal. Disabled with "No subscription yet" if `customers.stripe_customer_id` is null.
+  - Section: API access (Pro+ only) — "Generate API key" button. Stub with "Phase 4" message for now.
+  - Section: Danger zone — "Delete account" with confirm dialog. Deletes auth.users (cascade through customers, etc.). Use a server action.
+- **DoD:** Page renders all sections, manage-subscription button correctly enabled/disabled based on subscription state, account deletion works.
+
+### 3.9 — Stripe setup script (creates products + prices)
+- **Status:** PENDING
+- **Files:** `scripts/stripe-setup.ts`, update `package.json` to add a "stripe:setup" npm script
+- **Spec:**
+  - **(needs Stripe creds)** — script will fail if STRIPE_SECRET_KEY env var is missing, with a helpful message.
+  - Reads from a constants file `lib/stripe/products.ts` defining the three tiers (Starter $39/mo, Pro $99/mo, Agency $299/mo) plus annual variants (16% off each).
+  - For each tier, idempotently: find product by metadata.olokas_tier, create if missing; find price for monthly + annual, create if missing.
+  - Prints the resulting price IDs so the operator can paste them into Vercel env vars (STRIPE_PRICE_STARTER_MONTHLY etc., already in .env.example).
+  - Designed to be run manually with `npm run stripe:setup` after Stripe API key is set locally.
+- **DoD:** Script exists, exits cleanly when STRIPE_SECRET_KEY is missing (with help text), creates/updates products idempotently when run with credentials.
+
+### 3.10 — Stripe Checkout session API route (real implementation)
+- **Status:** PENDING
+- **Files:** `app/api/checkout/route.ts`
+- **Spec:**
+  - **(needs Stripe creds at runtime)** — POST handler accepts `{ priceId }`, requires authenticated user.
+  - Validates priceId against the allowlist (the price IDs from the env vars set up in 3.9).
+  - Looks up customers row for the authed user; if no `stripe_customer_id`, creates a Stripe customer first.
+  - Creates Checkout session with mode='subscription', line_items=[{ price: priceId, quantity: 1 }], success_url and cancel_url pointing back to /app/onboarding and /pricing.
+  - Returns `{ url }`. Frontend redirects to it.
+  - All errors return JSON with status code, never expose Stripe internals.
+- **DoD:** Authenticated user can call /api/checkout with a valid priceId and get a session URL. Build clean. (E2E only works with real Stripe creds.)
+
+### 3.11 — Stripe Customer Portal API route
+- **Status:** PENDING
+- **Files:** `app/api/portal/route.ts`
+- **Spec:**
+  - **(needs Stripe creds at runtime)** — POST handler, requires authenticated user.
+  - Looks up `customers.stripe_customer_id` for the user; 404 if not set.
+  - Creates `stripe.billingPortal.sessions.create({ customer, return_url: '/app/settings' })`.
+  - Returns `{ url }`. Frontend redirects.
+- **DoD:** Build clean, authenticated users with a stripe_customer_id can hit /api/portal.
+
+### 3.12 — Stripe webhook handlers (real subscription lifecycle)
+- **Status:** PENDING
+- **Files:** `app/api/webhooks/stripe/route.ts`
+- **Spec:**
+  - Replace the existing stub (which only logs events) with real handlers for the events listed below.
+  - Use the service-role Supabase client (createAdminClient) to bypass RLS.
+  - `checkout.session.completed`: pull customer_id and subscription_id from session, update customers row with `stripe_customer_id`, `stripe_subscription_id`, set plan based on the price ID, set query_limit + domain_limit per plan.
+  - `customer.subscription.updated`: re-derive plan from current price ID, update query_limit and domain_limit.
+  - `customer.subscription.deleted`: set plan='free', status='cancelled', preserve data for 30 days (don't actually delete here; that's a separate cron).
+  - `invoice.payment_failed`: set customers.status='past_due'. (Recovery email is Phase 5.)
+  - `invoice.payment_succeeded`: set customers.status='active'.
+  - All handlers idempotent — same event delivered twice produces same final state.
+- **DoD:** Real subscription lifecycle is implemented. Build clean. (E2E test requires real Stripe webhook events.)
+
+### 3.13 — Onboarding flow (4-step post-checkout)
+- **Status:** PENDING
+- **Files:** `app/app/onboarding/page.tsx`, `app/app/onboarding/actions.ts`, `components/onboarding/*`
+- **Spec:**
+  - 4 steps as separate components, switched via local state (no URL routing per step):
+    1. Confirm primary domain (read from customers — if not set, ask)
+    2. Suggest 10 starter queries based on the domain (use lib/queries/suggest.ts from item 2.2)
+    3. Optional: add up to 5 competitor domains per query
+    4. Schedule first scan (insert a job row with status='queued' for each query × engine combo) — when complete, redirect to /app/dashboard with toast "Your first scan is running."
+  - Progress indicator at top showing current step.
+  - "Skip for now" link on each step → /app/dashboard, but track that onboarding wasn't completed.
+- **DoD:** New user post-Checkout flows through all 4 steps, ends with queued scan jobs, lands on dashboard.
