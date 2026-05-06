@@ -15,6 +15,12 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-06 19:08:10 UTC — Run #5
+- Item: 2.5 (Shareable audit URL)
+- Result: SUCCESS
+- Files changed: 4
+- Notes: public/og-audit.png (1200×630, brand orange #ff6b35 dot + "Olokas Audit Report" headline, four-engine tagline) committed as the share preview; audit/[auditId] metadata gains openGraph + twitter:summary_large_image pointing at /og-audit.png while keeping noindex/nofollow (audit URLs are share-friendly but not crawl-friendly). New components/share-link-button.tsx — client component with Check/Link icons, copies window.location.href, swaps to "Link copied" for 1.8s, falls back to "Copy failed" if clipboard API is missing or the page isn't on a secure context. Mounted on the report header (right-aligned on sm+, stacks above on mobile). tsc and next build clean.
+
 ## 2026-05-06 07:11:29 UTC — Run #4
 - Item: 2.4 (Mock report data + rendering)
 - Result: SUCCESS

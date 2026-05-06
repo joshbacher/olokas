@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ShareLinkButton } from "@/components/share-link-button";
 import type { AuditReport, EnginePerf } from "@/lib/audit/mock-report";
 
 // Phase 2.4 — renders an `AuditReport` produced by `generateMockReport`.
@@ -54,9 +55,12 @@ export function AuditReportView({ report }: { report: AuditReport }) {
   return (
     <section className="flex flex-col gap-8" aria-label="Audit report">
       <header className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Audit for {report.domain}
-        </h1>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Audit for {report.domain}
+          </h1>
+          <ShareLinkButton className="self-start sm:mt-1" />
+        </div>
         <p className="max-w-[580px] text-[15px] leading-[1.55] text-muted-foreground">
           We ran your {queryCount} {queryNoun} against ChatGPT, Perplexity,
           Google AI Overviews, and Claude. Here&apos;s what they said.

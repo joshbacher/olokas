@@ -72,7 +72,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Polling page transitions to the report after 90s, report renders with realistic-looking mock data.
 
 ### 2.5 — Shareable audit URL
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** Update the audit flow to generate a slug-based shareable URL pattern.
 - **Spec:**
   - The audit ID is a UUID; the share URL is `/audit/${auditId}` and is publicly accessible (no auth).
