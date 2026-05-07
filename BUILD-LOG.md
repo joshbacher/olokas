@@ -15,6 +15,12 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-07 19:10:51 UTC — Run #9
+- Item: 6.1 (Pricing page)
+- Result: SUCCESS
+- Files changed: 3
+- Notes: lib/pricing/tiers.ts — pure-data module so PRICING_TIERS + types can import into both server and client without tripping Next's "client reference" treatment of values exported from a "use client" file (caught and fixed during build verification — the first version put the data in pricing-tiers.tsx and prerender threw "Attempted to call map() from the server but map is on the client"). Three tiers: Starter $39/mo (1 domain, 10 queries), Pro $99/mo (5 domains, 50 queries, daily scans, competitor tracking, API access — flagged as "Most popular", uses accent variant), Agency $299/mo (25 domains, 250 queries, white-label PDFs, multi-seat). Annual numbers display the per-month equivalent ($33/$83/$249) with the yearly total + savings spelled out underneath; ~16% discount baked into the data, not computed at render. components/pricing-tiers.tsx — client component with a radiogroup-styled monthly/annual toggle and three TierCard instances (shadcn Card + Badge + Button asChild Link, lucide Check icons in accent color). Single CTA per tier currently routes to /audit since Stripe checkout isn't wired (Phase 3.10) — comment in the file flags the swap. app/(marketing)/pricing/page.tsx — replaces the Phase-6 placeholder with a server-rendered page (BrandMark header, h1 "One narrow product, three sizes.", PricingTiers, 5-Q FAQ in a <dl>, SiteFooter). Two JSON-LD blocks: one @graph of three Service entries (each with Offer.price + UnitPriceSpecification @ MON, attributed to the existing Organization @id from the root layout's @graph), and one FAQPage with all five Q/A. Metadata exports include canonical URL + openGraph + twitter card. tsc clean, next build clean (18 pages, /pricing prerendered as static at 9.88 kB).
+
 ## 2026-05-07 07:11:16 UTC — Run #8
 - Item: 5.1 (Five core React Email templates)
 - Result: SUCCESS

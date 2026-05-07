@@ -122,7 +122,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 ## Phase 6: Marketing site
 
 ### 6.1 — Pricing page
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `app/(marketing)/pricing/page.tsx`
 - **Spec:**
   - Three tier cards (Starter $39, Pro $99, Agency $299).
