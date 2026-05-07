@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
+import { checkRateLimit, recordAuditRequest } from "@/lib/audit/rate-limit";
 
 // POST /api/audit — accepts { domain, email, queries[] }, mints an audit id,
 // and returns the URL the client can poll for status.
@@ -11,6 +12,9 @@ import { z } from "zod";
 //
 // We deliberately do NOT persist anything yet — the polling page tolerates
 // status calls for unknown ids and just runs out the 90s timer client-side.
+//
+// 2.7: rate limit one accepted audit per email per 7 days, in-memory for now
+// (see lib/audit/rate-limit.ts header for the Phase 3 swap plan).
 
 const requestSchema = z.object({
   domain: z
@@ -40,6 +44,17 @@ function looksLikeDomain(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function formatRetryDate(date: Date): string {
+  // UTC-anchored short date like "May 13" — deterministic regardless of the
+  // server's local timezone, which matters under serverless where instances
+  // can boot in different regions.
+  return date.toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export async function POST(request: Request) {
@@ -83,12 +98,35 @@ export async function POST(request: Request) {
     );
   }
 
-  // Reference the parsed email so the (currently unused) value is preserved
-  // for Phase 3 wiring without tripping the no-unused-vars lint.
-  void email;
+  const limit = checkRateLimit(email);
+  if (!limit.allowed) {
+    const retrySeconds = Math.max(
+      1,
+      Math.ceil((limit.retryAfter.getTime() - Date.now()) / 1000)
+    );
+    return NextResponse.json(
+      {
+        error: `You've already run a free audit recently. You can run another after ${formatRetryDate(
+          limit.retryAfter
+        )}.`,
+        retryAfter: limit.retryAfter.toISOString(),
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": retrySeconds.toString(),
+        },
+      }
+    );
+  }
 
   const auditId = randomUUID();
   const statusUrl = `/audit/${auditId}`;
+
+  // Stamp the rate-limit window only after we've decided to accept the
+  // request. A 4xx earlier in the handler should not consume the user's
+  // 7-day slot.
+  recordAuditRequest(email);
 
   return NextResponse.json({ auditId, statusUrl }, { status: 202 });
 }

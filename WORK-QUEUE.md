@@ -91,7 +91,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** The email template exists and produces valid HTML when called with mock data. No actual sending yet.
 
 ### 2.7 — Rate limiting (1 per email per 7 days)
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `lib/audit/rate-limit.ts`, integrate into `/api/audit` route
 - **Spec:**
   - Implement `checkRateLimit(email: string): Promise<{ allowed: boolean, retryAfter?: Date }>`.
