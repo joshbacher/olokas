@@ -105,7 +105,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 ## Phase 5: Email templates (drafts; no real sending)
 
 ### 5.1 — Five core React Email templates
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `emails/WeeklyReport.tsx`, `emails/Welcome.tsx`, `emails/FailedPayment.tsx`, `emails/CancellationConfirmation.tsx`, `emails/FreeAuditReport.tsx` (already in 2.6)
 - **Spec:**
   - Plain hand-rolled email-safe React using inline styles. Mobile-friendly (max-width 600px, fluid).
