@@ -20,6 +20,7 @@ Each entry is one autonomous build run. Newest at top.
 - Result: SUCCESS
 - Files changed: 2
 - Notes: lib/audit/rate-limit.ts — new module; checkRateLimit(email, now?) returns {allowed: true} or {allowed: false, retryAfter: Date}; recordAuditRequest(email, now?) stamps a per-email window. Process-local Map for now (acceptable while /api/audit itself doesn't persist), with header doc flagging the Phase 3 swap to a Supabase free_audits table — public surface kept stable so the swap is signature-compatible. Window is 7 days; emails normalized to trim+lowercase. app/api/audit/route.ts now calls checkRateLimit after schema + domain validation; 429 carries a friendly message ("You've already run a free audit recently. You can run another after May 13."), retryAfter ISO in the body, and a Retry-After header in seconds. recordAuditRequest only fires after we've decided to mint an auditId so 4xx earlier in the handler doesn't burn the user's slot. Existing audit-form.tsx already pipes data.error into the submit-error slot, so the friendly 429 message renders without form changes. tsc and next build clean.
+- Post-push verification: site OK (HTTP 200 home + title intact, /audit HTTP 200 form intact). Live functional check on /api/audit: first POST → 202 with auditId; second POST same email → 429 with friendly retry-after message — limiter wired correctly.
 
 ## 2026-05-06 23:17:18 UTC — Run #6
 - Item: 2.6 (Email the report (mock for now))
