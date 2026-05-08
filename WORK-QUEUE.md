@@ -146,7 +146,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** /blog lists the seed post, /blog/welcome renders MDX, sitemap.xml lists it.
 
 ### 6.3 — Comparison pages (vs/[competitor])
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit f5bcfdf)
 - **Files:** Update `app/(marketing)/vs/[competitor]/page.tsx`, add `content/comparisons/*.mdx`
 - **Spec:**
   - For each known competitor (semrush, ahrefs, wordlift, seoptimer), generate a comparison page from MDX.
