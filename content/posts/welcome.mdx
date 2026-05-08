@@ -1,0 +1,74 @@
+---
+title: "What Olokas Measures"
+slug: "welcome"
+excerpt: "A plain-English description of generative engine optimization (GEO), what each AI search engine actually does at retrieval time, and what the numbers on a visibility report mean."
+publishedAt: "2026-05-07"
+author: "Olokas"
+tags: ["geo", "fundamentals", "ai-search"]
+---
+
+When somebody types a question into ChatGPT or Perplexity, they don't get a list of ten blue links. They get a paragraph. That paragraph is assembled in real time by a model that read parts of the open web, decided which sources were worth citing, and then synthesized an answer it judged useful. If your business is mentioned in that paragraph, you exist in that conversation. If your business is not mentioned, you don't.
+
+This category goes by a few names. The most common is **generative engine optimization** — usually shortened to GEO. You will also see **answer engine optimization** (AEO), **AI search optimization**, and a few vendor-specific terms. The names matter less than the underlying shift: there is a new layer between your customers and your website, and that layer has its own retrieval logic.
+
+This post describes what that retrieval logic actually does, what a visibility report measures, and what each number on the report means. It is the orientation we wish every customer had before opening their first dashboard.
+
+## The four engines we monitor
+
+Olokas runs scans against four AI search surfaces. They behave differently from each other, which is why we report them separately rather than averaging into a single score.
+
+**ChatGPT** runs both with and without web search depending on the user's plan and the query. When it has web access, it issues a small number of search queries against Bing's index, fetches the top results, and feeds excerpts into the model along with the user's question. The model then produces an answer that may or may not cite the fetched pages. Citations show up as small numbered links beside sentences. When ChatGPT runs in offline mode, it relies on what was in its training data and what is in the user's conversation.
+
+**Perplexity** is the most explicit about its retrieval. Every answer comes with numbered citations, and you can click through to each one. It usually fetches more sources than ChatGPT before answering, and it tends to cite more of them. Perplexity has its own crawler and its own ranking model on top of public web search.
+
+**Google AI Overviews** are the boxed summaries that appear above traditional search results for some queries. They are produced by a Gemini-family model that pulls from Google's regular index. Overviews don't appear for every query — Google withholds them on commercial intent searches, fast-changing topics, and queries where it has low confidence. When they do appear, they tend to cite three to seven sources with thumbnail-style links.
+
+**Claude** has web search available through claude.ai and the API. Like ChatGPT, it issues queries, fetches results, and decides what to cite. Citations are inline and clickable. Claude tends to be more conservative about making factual claims when sources disagree, which means coverage looks different from Perplexity even on the same query.
+
+These four cover the bulk of public AI search traffic today. There are others — Bing Copilot, You.com, Kagi Assistant, the various app-specific assistants — but the four we monitor account for most of what an average buyer encounters.
+
+## What "visibility" actually means
+
+A visibility scan, in the Olokas sense, is a structured experiment. You give us a query — something a customer might plausibly type — and a target domain. For each engine, we ask the engine the query, capture the answer plus its citations, and record three things:
+
+1. Did the answer mention the target domain by name or URL?
+2. Did the answer cite a page from the target domain?
+3. What other domains showed up in the answer, in what positions?
+
+These are independent. An engine can mention you without citing you (it pulled the fact from training data), cite you without naming you (you're just one of three sources in a footnote), or do both, or neither. The visibility report tracks each.
+
+The headline number on a report is the **GEO score**, which is a 0–100 composite. It is weighted toward the things that actually drive a click or a mention: appearing in the answer at all, being cited, and being cited in a position the user is likely to read. The exact weights are documented in the report itself. We chose to surface a single number because operators need a quick "is this getting better or worse" pulse, but the underlying engines and queries are always one click away.
+
+## What the per-engine breakdown shows
+
+Each engine gets its own card on the report. Inside the card you'll find the engine's score for that scan, the citations it produced, and a flag for whether your target appeared.
+
+The flag is the most useful field. It is intentionally binary: either the answer contained your domain or it did not. Most queries on most engines do not include any specific brand. The interesting queries are the ones where competitors appear and you do not. Those are the gaps you can act on.
+
+Citations matter because they are the link a curious user clicks. A citation that goes to your blog is qualitatively different from one that goes to your homepage. A citation buried at position seven is worth less than one in the lead paragraph. The report records position so you can reason about this.
+
+## What changes between scans
+
+Generative answers are not deterministic. The same query asked twice in a row can produce different text, different citations, and sometimes a different overall stance. There are several reasons for this. The model has a temperature parameter that introduces randomness. Web search results shift as new pages are indexed. The retrieval ranker can be updated by the engine vendor without notice. Cache layers can serve a stale answer to one user and a fresh one to another.
+
+We deal with this by running each query several times per scan and reporting the median. Week-over-week changes shown in the dashboard are statistical, not anecdotal. If a single scan run looks bad, that is noise. If three weekly scans in a row trend down, that is a signal.
+
+This is also why we recommend scanning the same query for at least four weeks before drawing conclusions. A query you've watched for one week tells you almost nothing. A query you've watched for a month tells you which way the engines are drifting.
+
+## What you can do about a low score
+
+Most of what improves AI search visibility looks a lot like normal good content practice. The engines reward clarity, factual density, fresh dates, structured data, and a coherent topical footprint. They penalize thin content, duplicate pages, and sites that don't load fast.
+
+Some of the levers are specific to AI retrieval. The most useful one we have observed is putting clear, scannable answers near the top of the page for the questions a customer would actually ask. The retrieval models read excerpts. Excerpts that contain a direct answer are more likely to end up in the model's context window than excerpts that bury the answer five paragraphs in. This is true on every engine we have measured.
+
+Another lever is third-party mentions. Engines weight independent sources heavily, especially Perplexity and Claude. A page on your own site that says you are the leader in your category counts for less than a page on a trusted publication that names you alongside competitors. We don't help you get those mentions — we just measure when they show up.
+
+What we don't recommend, and don't help with, is anything adversarial. Prompt injection in page content, hidden text targeting model parsers, fake schema markup — these things sometimes work for a few weeks and then get caught and demoted. The engines are operated by some of the largest engineering organizations on earth. They are paying attention.
+
+## What a useful first month looks like
+
+If you are setting up Olokas for the first time, the most valuable thing you can do is pick five to ten queries that a real prospect might actually type, watch them for four to six weeks across all four engines, and then look at the slope of each line. You will probably find that one engine treats you well, one ignores you, and the other two are mixed. That distribution is the starting point for any work you do next.
+
+You will probably also find that some queries are noisy and some are stable. Drop the noisy ones from your tracked set after a couple weeks. They are not telling you anything you can act on.
+
+After a month or two of weekly scans you will have a baseline. From there, every change you make to the site, every press mention, every product launch can be evaluated against that baseline. That is what we mean when we say we measure one thing well.

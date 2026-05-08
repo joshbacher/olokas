@@ -133,7 +133,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Pricing page renders all three tiers with toggle, FAQ visible, JSON-LD valid.
 
 ### 6.2 — Blog index + MDX post pages
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `app/(marketing)/blog/page.tsx`, `app/(marketing)/blog/[slug]/page.tsx`, `content/posts/*.mdx`, `lib/posts.ts`
 - **Spec:**
   - Add `next-mdx-remote` for MDX rendering (or similar lightweight option).
