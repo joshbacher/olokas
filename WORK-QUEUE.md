@@ -172,7 +172,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 These items assume the Supabase migration has been run (it has — see commit notes on the migration step). Items marked **(needs Stripe creds)** can have their code written but won't function end-to-end until `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set in Vercel env vars. Code still ships; functionality activates when creds land.
 
 ### 3.1 — Supabase Auth UI (sign-in / sign-up with magic link)
-- **Status:** PENDING
+- **Status:** DONE (commit 38d9ffc)
 - **Files:** `app/(auth)/login/page.tsx`, `app/(auth)/signup/page.tsx`, `app/(auth)/auth/callback/route.ts`, `components/auth/magic-link-form.tsx`
 - **Spec:**
   - Replace the placeholder login/signup pages with real magic-link flows using `@supabase/ssr`.
