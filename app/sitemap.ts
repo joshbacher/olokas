@@ -1,13 +1,20 @@
 import type { MetadataRoute } from "next";
+import { getAllComparisons } from "@/lib/comparisons";
 import { getAllPosts } from "@/lib/posts";
 
 const BASE_URL = "https://olokas.com";
 
 /**
- * Phase 6.2 — sitemap.xml. Includes the static marketing routes plus a row
- * per blog post (lastModified = publishedAt). Phase 6.4 may extend this with
- * comparison pages and other dynamic routes; for now we keep the surface
- * narrow and explicit so we never accidentally list authenticated /app/* paths.
+ * Phase 6.4 — full sitemap.xml.
+ *
+ * Lists every public marketing route plus per-content rows for blog posts
+ * and competitor comparison pages. Authenticated `/app/*` routes and the
+ * `/api/*` surface are intentionally excluded — those are also blocked by
+ * `app/robots.ts`. Dev-only `/audit/suggest-test` is omitted as well.
+ *
+ * Per-audit URLs (`/audit/[auditId]`) are noindex/nofollow at the page
+ * level (see metadata in that route) — they're meant to be shareable but
+ * not crawl-indexed — so they don't appear here either.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -47,5 +54,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...postRoutes];
+  const comparisons = await getAllComparisons();
+  const comparisonRoutes: MetadataRoute.Sitemap = comparisons.map((c) => ({
+    url: `${BASE_URL}/vs/${c.slug}`,
+    lastModified: new Date(c.updatedAt),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...comparisonRoutes];
 }

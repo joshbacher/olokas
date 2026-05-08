@@ -1,6 +1,45 @@
+import type { Metadata } from "next";
 import { BrandMark } from "@/components/brand-mark";
 import { EmailSignup } from "@/components/email-signup";
 import { SiteFooter } from "@/components/site-footer";
+
+// Phase 6.4 — home metadata. The root layout (`app/layout.tsx`) already
+// carries default openGraph/twitter values that apply when a route doesn't
+// override them, but we set explicit per-page metadata here so the home
+// page has a concrete canonical URL plus a branded og:image (the same
+// `/og-default.png` shared across marketing surfaces that don't have a
+// purpose-built preview).
+export const metadata: Metadata = {
+  title: {
+    absolute: "Olokas — AI search visibility, measured",
+  },
+  description:
+    "Olokas monitors how ChatGPT, Perplexity, Google AI Overviews, and Claude answer questions about your business. Weekly scans across all four engines. Email report every Monday. $39/month.",
+  alternates: { canonical: "https://olokas.com/" },
+  openGraph: {
+    type: "website",
+    url: "https://olokas.com/",
+    siteName: "Olokas",
+    title: "Olokas — AI search visibility, measured",
+    description:
+      "Weekly scans of ChatGPT, Perplexity, Google AI Overviews, and Claude. One-page report on whether your domain shows up — and what's said when it does.",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Olokas — AI search visibility, measured",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Olokas — AI search visibility, measured",
+    description:
+      "Weekly scans of ChatGPT, Perplexity, Google AI Overviews, and Claude. One-page report.",
+    images: ["/og-default.png"],
+  },
+};
 
 export default function HomePage() {
   return (

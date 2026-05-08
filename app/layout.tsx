@@ -27,12 +27,21 @@ export const metadata: Metadata = {
     title: "Olokas — AI search visibility, measured",
     description:
       "Monitor how AI search engines discover and cite your business. Weekly scans, email reports, $39/mo.",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Olokas — AI search visibility, measured",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Olokas — AI search visibility, measured",
     description:
       "Monitor how AI search engines discover and cite your business. Weekly scans, email reports.",
+    images: ["/og-default.png"],
   },
   robots: {
     index: true,

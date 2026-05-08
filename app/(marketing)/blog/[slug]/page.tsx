@@ -29,6 +29,11 @@ export async function generateMetadata({
     return { title: "Post not found" };
   }
   const url = `https://olokas.com/blog/${post.slug}`;
+  // Phase 6.4 — fall back to the shared marketing OG image when the post has
+  // no cover image of its own. This keeps every post URL share-friendly on
+  // X/LinkedIn even if frontmatter omits coverImage.
+  const ogImage = post.coverImage ?? "/og-default.png";
+  const ogImageAlt = post.coverImage ? post.title : "Olokas — AI search visibility, measured";
   return {
     title: post.title,
     description: post.excerpt,
@@ -41,13 +46,13 @@ export async function generateMetadata({
       publishedTime: post.publishedAt,
       authors: [post.author],
       tags: post.tags,
-      images: post.coverImage ? [{ url: post.coverImage }] : undefined,
+      images: [{ url: ogImage, alt: ogImageAlt }],
     },
     twitter: {
-      card: post.coverImage ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : undefined,
+      images: [ogImage],
     },
   };
 }

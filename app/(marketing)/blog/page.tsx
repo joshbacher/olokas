@@ -21,12 +21,21 @@ export const metadata: Metadata = {
       "Notes on AI search visibility — what the engines do at retrieval time, how to read a GEO report, what actually moves the needle.",
     url: "https://olokas.com/blog",
     type: "website",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Olokas — AI search visibility, measured",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Olokas Blog",
     description:
       "Notes on AI search visibility, GEO, and how the engines pick what to cite.",
+    images: ["/og-default.png"],
   },
 };
 

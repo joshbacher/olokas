@@ -156,7 +156,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** All four comparison pages render with placeholder content and the table component works.
 
 ### 6.4 — SEO basics
-- **Status:** PENDING
+- **Status:** DONE (commit 17ee3a8)
 - **Files:** `app/sitemap.ts`, `app/robots.ts`, audit metadata exports across all pages
 - **Spec:**
   - `app/sitemap.ts` returns dynamic sitemap including all routes + posts.

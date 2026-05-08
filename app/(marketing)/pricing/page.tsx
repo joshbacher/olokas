@@ -15,12 +15,21 @@ export const metadata: Metadata = {
       "Three plans for AI search visibility monitoring. Starter $39, Pro $99, Agency $299. Save ~16% annually.",
     url: "https://olokas.com/pricing",
     type: "website",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Olokas — AI search visibility, measured",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Olokas Pricing",
     description:
       "Three plans for AI search visibility monitoring. Starter $39, Pro $99, Agency $299.",
+    images: ["/og-default.png"],
   },
 };
 

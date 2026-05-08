@@ -38,6 +38,9 @@ export async function generateMetadata({
     return { title: "Comparison not found" };
   }
   const url = `https://olokas.com/vs/${comp.slug}`;
+  // Phase 6.4 — comparison pages share the marketing OG default. A future
+  // pass can render per-competitor preview images; the fallback keeps every
+  // /vs/<slug> URL looking right when shared.
   return {
     title: comp.title,
     description: comp.excerpt,
@@ -47,11 +50,20 @@ export async function generateMetadata({
       url,
       title: comp.title,
       description: comp.excerpt,
+      images: [
+        {
+          url: "/og-default.png",
+          width: 1200,
+          height: 630,
+          alt: "Olokas — AI search visibility, measured",
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: comp.title,
       description: comp.excerpt,
+      images: ["/og-default.png"],
     },
   };
 }
