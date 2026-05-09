@@ -214,7 +214,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** New users (sign-up flow) reliably get a customers row even if the trigger fails. Existing users get their row fetched. Build clean.
 
 ### 3.5 — Dashboard overview page
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit d88cea7)
 - **Files:** `app/app/dashboard/page.tsx`, `components/dashboard/overview-cards.tsx`
 - **Spec:**
   - Fetches the customer's domains, query count, last scan timestamp, and latest GEO score per engine (from scan_results table — empty for new users).
