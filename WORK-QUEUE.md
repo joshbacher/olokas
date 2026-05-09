@@ -193,7 +193,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** middleware.ts exists, build is clean, after a magic-link sign-in cookies persist across reloads.
 
 ### 3.3 — Real /app/* auth guard
-- **Status:** DONE (commit 7f89cdf)
+- **Status:** DONE (commit 2ede631)
 - **Files:** `app/app/layout.tsx`
 - **Spec:**
   - Replace the existing stub layout (which has a try/catch fallback to "allow through") with a real auth guard.
