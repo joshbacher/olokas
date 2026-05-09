@@ -15,6 +15,12 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-09 03:07:41 UTC — Run #14
+- Item: 3.2 (Auth middleware (session refresh on every request))
+- Result: SUCCESS
+- Files changed: 2
+- Notes: middleware.ts (new, repo root) — Next 14 middleware delegating to lib/supabase/middleware.ts updateSession; matcher excludes Next internals (_next/static, _next/image), favicon/robots/sitemap, and a wide set of static asset extensions (svg/png/jpg/jpeg/gif/webp/ico/css/js/map/woff/woff2/ttf/otf) so we don't burn an Edge invocation on chunked JS or favicons. No redirects from middleware — route guards stay in layouts (3.3 owns /app/* gating; 3.1's /auth/callback already owns post-magic-link routing). lib/supabase/middleware.ts (new) — updateSession(request: NextRequest) implementation matching the canonical @supabase/ssr pattern: builds a supabaseResponse via NextResponse.next({ request }), constructs a typed CookieMethodsServer (mirrors the same shape used in lib/supabase/server.ts) whose setAll mirrors cookies onto the inbound request and rebuilds supabaseResponse with the mutated request before re-emitting Set-Cookie headers, then constructs createServerClient and immediately calls supabase.auth.getUser() with no intermediate awaits — Supabase's docs are explicit that anything between createServerClient and getUser can land the refreshed cookies on a stale response. When NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY are absent (preview deploys without env wiring, local builds), updateSession returns the pass-through NextResponse.next() instead of throwing — server.ts still throws on missing env when a server component actually tries to construct a client, which is the right place for that error to surface; middleware should never 500 every request. Local verification: tsc clean, next build clean (26 pages, Middleware bundle 80.9 kB), curl smoke against next start with no Supabase env: / HTTP 200 19,067 B (hero copy intact), /login HTTP 200 16,266 B (3.1's magic-link form), /app/dashboard HTTP 200 12,159 B (env-missing path: middleware silently passes through, layout's existing try/catch allows through with the scaffold notice — 3.3 will replace that), /auth/callback HTTP 307 -> /login?reason=missing_code (still works, route handler unaffected by middleware), /robots.txt HTTP 200 151 B (correctly excluded from matcher).
+
 ## 2026-05-08 23:08:30 UTC — Run #13
 - Item: 3.1 (Supabase Auth UI (sign-in / sign-up with magic link))
 - Result: SUCCESS

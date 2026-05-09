@@ -24,7 +24,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 ## Phase 2: Free audit tool
 
 ### 2.1 — Free audit form UI
-- **Status:** DONE (commit 41cccde)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `app/(marketing)/audit/page.tsx`, possibly new `components/audit-form.tsx`
 - **Spec:**
   - Replace placeholder `app/(marketing)/audit/page.tsx` with a full form UI.
@@ -37,7 +37,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** `/audit` page renders the form, form validates client-side, submit hits `/api/audit` (which still returns 501), build clean.
 
 ### 2.2 — Query suggestion engine (helper, no UI yet)
-- **Status:** DONE (commit 06effe4)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `lib/queries/suggest.ts`, plus a tiny test page `app/(marketing)/audit/suggest-test/page.tsx` (gated to dev only via `process.env.NODE_ENV`)
 - **Spec:**
   - Implement `suggestQueriesFromUrl(url: string): Promise<string[]>` that:
@@ -50,7 +50,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Function exists, has unit-test-ready shape, the dev test page calls it and shows output, build clean.
 
 ### 2.3 — Free audit submit handler with mock job enqueue
-- **Status:** DONE (commit 17f5a24)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `app/api/audit/route.ts`, `app/(marketing)/audit/[auditId]/page.tsx`
 - **Spec:**
   - `POST /api/audit` accepts `{ domain, email, queries[] }`.
@@ -62,7 +62,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Submit → redirect → 90s polling page with rotating facts → mock completion message. Build clean.
 
 ### 2.4 — Mock report data + rendering
-- **Status:** DONE (commit 2be9370)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `lib/audit/mock-report.ts`, `components/audit-report.tsx`, integrate into `app/(marketing)/audit/[auditId]/page.tsx`
 - **Spec:**
   - `mock-report.ts` exports `generateMockReport(domain: string, queries: string[]): AuditReport` returning realistic-looking data.
@@ -72,7 +72,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Polling page transitions to the report after 90s, report renders with realistic-looking mock data.
 
 ### 2.5 — Shareable audit URL
-- **Status:** DONE (commit b764488)
+- **Status:** DONE (commit 87e114e)
 - **Files:** Update the audit flow to generate a slug-based shareable URL pattern.
 - **Spec:**
   - The audit ID is a UUID; the share URL is `/audit/${auditId}` and is publicly accessible (no auth).
@@ -81,7 +81,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Report URL is shareable, copy button works, OG preview shows brand image when shared on X/LinkedIn.
 
 ### 2.6 — Email the report (mock for now)
-- **Status:** DONE (commit 62576ad)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `emails/FreeAuditReport.tsx`, integrate into report flow
 - **Spec:**
   - React Email template `FreeAuditReport.tsx` that takes `AuditReport` props and renders email-friendly HTML.
@@ -91,7 +91,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** The email template exists and produces valid HTML when called with mock data. No actual sending yet.
 
 ### 2.7 — Rate limiting (1 per email per 7 days)
-- **Status:** DONE (commit 9aaeb90)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `lib/audit/rate-limit.ts`, integrate into `/api/audit` route
 - **Spec:**
   - Implement `checkRateLimit(email: string): Promise<{ allowed: boolean, retryAfter?: Date }>`.
@@ -105,7 +105,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 ## Phase 5: Email templates (drafts; no real sending)
 
 ### 5.1 — Five core React Email templates
-- **Status:** DONE (commit b5899ee)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `emails/WeeklyReport.tsx`, `emails/Welcome.tsx`, `emails/FailedPayment.tsx`, `emails/CancellationConfirmation.tsx`, `emails/FreeAuditReport.tsx` (already in 2.6)
 - **Spec:**
   - Plain hand-rolled email-safe React using inline styles. Mobile-friendly (max-width 600px, fluid).
@@ -122,7 +122,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 ## Phase 6: Marketing site
 
 ### 6.1 — Pricing page
-- **Status:** DONE (commit deec079)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `app/(marketing)/pricing/page.tsx`
 - **Spec:**
   - Three tier cards (Starter $39, Pro $99, Agency $299).
@@ -133,7 +133,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** Pricing page renders all three tiers with toggle, FAQ visible, JSON-LD valid.
 
 ### 6.2 — Blog index + MDX post pages
-- **Status:** DONE (commit e5fd5a7)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `app/(marketing)/blog/page.tsx`, `app/(marketing)/blog/[slug]/page.tsx`, `content/posts/*.mdx`, `lib/posts.ts`
 - **Spec:**
   - Add `next-mdx-remote` for MDX rendering (or similar lightweight option).
@@ -146,7 +146,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** /blog lists the seed post, /blog/welcome renders MDX, sitemap.xml lists it.
 
 ### 6.3 — Comparison pages (vs/[competitor])
-- **Status:** DONE (commit f5bcfdf)
+- **Status:** DONE (commit 87e114e)
 - **Files:** Update `app/(marketing)/vs/[competitor]/page.tsx`, add `content/comparisons/*.mdx`
 - **Spec:**
   - For each known competitor (semrush, ahrefs, wordlift, seoptimer), generate a comparison page from MDX.
@@ -156,7 +156,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 - **DoD:** All four comparison pages render with placeholder content and the table component works.
 
 ### 6.4 — SEO basics
-- **Status:** DONE (commit 17ee3a8)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `app/sitemap.ts`, `app/robots.ts`, audit metadata exports across all pages
 - **Spec:**
   - `app/sitemap.ts` returns dynamic sitemap including all routes + posts.
@@ -172,7 +172,7 @@ This file is the source of truth for the autonomous build cron (see `.claude/bui
 These items assume the Supabase migration has been run (it has — see commit notes on the migration step). Items marked **(needs Stripe creds)** can have their code written but won't function end-to-end until `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set in Vercel env vars. Code still ships; functionality activates when creds land.
 
 ### 3.1 — Supabase Auth UI (sign-in / sign-up with magic link)
-- **Status:** DONE (commit 38d9ffc)
+- **Status:** DONE (commit 87e114e)
 - **Files:** `app/(auth)/login/page.tsx`, `app/(auth)/signup/page.tsx`, `app/(auth)/auth/callback/route.ts`, `components/auth/magic-link-form.tsx`
 - **Spec:**
   - Replace the placeholder login/signup pages with real magic-link flows using `@supabase/ssr`.
@@ -183,7 +183,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** /login and /signup both render the magic-link form, callback route exchanges code for session and redirects, build clean.
 
 ### 3.2 — Auth middleware (session refresh on every request)
-- **Status:** PENDING
+- **Status:** DONE (commit 87e114e)
 - **Files:** new `middleware.ts` at repo root, possibly update `lib/supabase/middleware.ts` helper
 - **Spec:**
   - Per `@supabase/ssr` docs, add a `middleware.ts` that calls `supabase.auth.getUser()` on every request to refresh the session cookie.
