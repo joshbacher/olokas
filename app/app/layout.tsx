@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { ensureCustomerRecord } from "@/lib/customers/ensure";
+import { CustomerProvider } from "@/lib/customers/context";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,6 +19,11 @@ import { cn } from "@/lib/utils";
 //   middleware forwards (see lib/supabase/middleware.ts). We sanitize it to
 //   `/app/...` paths only — never honor an arbitrary `next` value, which
 //   would let an attacker redirect post-login to an off-app URL.
+// - Once we have a user, ensureCustomerRecord() guarantees a `customers` row
+//   exists for them — covers the rare case where the handle_new_user trigger
+//   didn't fire — and the row is published to client components further down
+//   via <CustomerProvider> (server-component children can call
+//   ensureCustomerRecord() directly; React.cache() dedupes the round-trip).
 // - Renders a top nav inside the authed shell with brand on the left, the
 //   four primary destinations in the middle, and a sign-out form on the right.
 // - `dynamic = "force-dynamic"` is explicit (cookies() already makes this
@@ -69,6 +76,18 @@ export default async function AppLayout({
     redirect(`/login?next=${encodeURIComponent(nextPath)}`);
   }
 
+  // Magic-link flow always populates user.email; if it's missing the auth
+  // flow is in a bad state — bounce out instead of 500-ing on a NOT NULL
+  // insert below.
+  if (!user.email) {
+    redirect("/login?reason=missing_email");
+  }
+
+  // Backstop for the handle_new_user trigger. Idempotent — fetches the row if
+  // it already exists (the common case), otherwise upserts it via the
+  // service-role client.
+  const customer = await ensureCustomerRecord(user.id, user.email);
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border">
@@ -117,7 +136,7 @@ export default async function AppLayout({
       </header>
 
       <main className="mx-auto w-full max-w-[1100px] px-7 py-[5vh] flex-1">
-        {children}
+        <CustomerProvider customer={customer}>{children}</CustomerProvider>
       </main>
     </div>
   );

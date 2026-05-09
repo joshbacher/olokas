@@ -204,7 +204,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Unauthenticated users hitting /app/* get redirected to /login. Authenticated users see the nav. Sign-out works.
 
 ### 3.4 — Customer record provisioning fallback
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `lib/customers/ensure.ts`, integrated into `app/app/layout.tsx`
 - **Spec:**
   - The Supabase migration includes a `handle_new_user` trigger that creates a `customers` row on auth.users insert. But triggers can fail silently in edge cases.
