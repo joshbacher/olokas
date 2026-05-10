@@ -224,7 +224,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Dashboard renders for any authed user, shows real data from Supabase or empty state. Build clean.
 
 ### 3.6 — Queries page (CRUD with plan limits)
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `app/app/queries/page.tsx`, `app/app/queries/actions.ts`, `components/queries/queries-table.tsx`
 - **Spec:**
   - Lists all customer_queries scoped to the current customer (RLS handles the scoping; just SELECT *).
