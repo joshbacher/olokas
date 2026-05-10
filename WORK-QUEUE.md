@@ -235,7 +235,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** All CRUD operations work, RLS prevents seeing other users' data, plan limits enforced.
 
 ### 3.7 — Reports page (list view)
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit fd78c16)
 - **Files:** `app/app/reports/page.tsx`
 - **Spec:**
   - Lists historical reports from the reports table for the current customer.
