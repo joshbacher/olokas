@@ -15,6 +15,47 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-10 03:08:00 UTC — Run #20
+- Item: 3.8 (Settings page (Stripe portal link + account info))
+- Result: FAILED
+- Failure type: audit
+- Error (first 30 lines):
+```
+# npm audit report
+
+next  0.9.9 - 16.3.0-canary.5
+Severity: critical
+Next.js Allows a Denial of Service (DoS) with Server Actions - https://github.com/advisories/GHSA-7m27-7ghc-44w9
+Information exposure in Next.js dev server due to lack of origin verification - https://github.com/advisories/GHSA-3h52-269p-cp9r
+Next.js Affected by Cache Key Confusion for Image Optimization API Routes - https://github.com/advisories/GHSA-g5qg-72qw-gw5v
+Next.js authorization bypass vulnerability - https://github.com/advisories/GHSA-7gfc-8cq8-jh5f
+Next.js Improper Middleware Redirect Handling Leads to SSRF - https://github.com/advisories/GHSA-4342-x723-ch2f
+Next.js Content Injection Vulnerability for Image Optimization - https://github.com/advisories/GHSA-xv57-4mr9-wg8v
+Next.js Race Condition to Cache Poisoning - https://github.com/advisories/GHSA-qpjv-v59x-3qc4
+Next Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-mwv6-3258-q52c
+Next has a Denial of Service with Server Components - Incomplete Fix Follow-Up - https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration - https://github.com/advisories/GHSA-9g9p-9gw9-jx7f
+Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components - https://github.com/advisories/GHSA-h25m-26qc-wcjf
+Authorization Bypass in Next.js Middleware - https://github.com/advisories/GHSA-f82v-jwr5-mffw
+Next.js: HTTP request smuggling in rewrites - https://github.com/advisories/GHSA-ggv3-7p47-pfv8
+Next.js: Unbounded next/image disk cache growth can exhaust storage - https://github.com/advisories/GHSA-3x4c-7xq6-9pq8
+Next.js has a Denial of Service with Server Components - Incomplete Fix Follow-Up - https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+Next.js has a Denial of Service with Server Components - https://github.com/advisories/GHSA-q4gf-8mx6-v5v3
+Depends on vulnerable versions of postcss
+fix available via `npm audit fix --force`
+Will install next@14.2.35, which is outside the stated dependency range
+node_modules/next
+
+postcss  <8.5.10
+Severity: moderate
+PostCSS has XSS via Unescaped </style> in its CSS Stringify Output - https://github.com/advisories/GHSA-qx2v-qp2m-jg93
+fix available via `npm audit fix --force`
+Will install next@14.2.35, which is outside the stated dependency range
+node_modules/next/node_modules/postcss
+```
+- Notes: build verification failed at the `npm audit --audit-level=high --omit=dev` gate before tsc / next build ever ran, so the implementation files (app/app/settings/page.tsx, app/app/settings/actions.ts, app/app/settings/action-types.ts, components/settings/manage-subscription-button.tsx, components/settings/delete-account-form.tsx) were stashed and are NOT pushed. The audit reports a critical chain on `next@14.2.13` covering 15 advisories (DoS via Server Actions, cache poisoning, SSRF in middleware redirect, image-optimizer remotePatterns DoS, authz bypass in middleware, HTTP request smuggling, etc.) plus a moderate transitively-pulled postcss XSS via unescaped </style> in stringify output. Both fix paths flow through `next@14.2.35` (the patched 14.2.x). package.json currently pins `"next": "14.2.13"` exactly (no caret), so `npm audit fix` declines to bump and `npm audit fix --force` would move to 14.2.35 — outside the stated dependency range. This is the cron's intended "bounce to a human" path per the spec: "The fix is almost always to bump the affected package to a patched version; the operator will need to read /tmp/audit.log and decide." Recommended remediation: edit package.json to `"next": "14.2.35"` (still 14.2.x — no major or minor bump, just patch range), re-run `npm install` to pin lockfile, then re-queue 3.8 by editing WORK-QUEUE.md status back to PENDING. Vercel would otherwise silently reject the build server-side against the same advisory database, which is the regression the audit gate exists to catch. The 3.8 implementation itself looks sound (page reads ensureCustomerRecord, renders four Card sections — Account / Billing / API access / Danger zone — with the spec's Pro+-gated API stub, ManageSubscriptionButton enabled iff stripe_customer_id is set, DeleteAccountForm with a typed-email confirmation gate that calls a deleteAccountAction server action using createAdminClient().auth.admin.deleteUser, relying on the migration's ON DELETE CASCADE from customers → domains → customer_queries → scan_results → reports for the data sweep) and can be re-applied unchanged on the next run once the Next bump lands. No deploy promotion check ran (nothing was pushed); olokas.com continues serving whatever the prior deploy (commit fd78c16 / Run #19) promoted.
+
+
 ## 2026-05-10 07:09:44 UTC — Run #19
 - Item: 3.7 (Reports page (list view))
 - Result: SUCCESS

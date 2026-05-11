@@ -245,7 +245,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** /app/reports renders for any authed user, table populates with real data when reports exist, empty state otherwise.
 
 ### 3.8 — Settings page (Stripe portal link + account info)
-- **Status:** PENDING
+- **Status:** FAILED (last attempt: 2026-05-10 — npm audit blocked: next@14.2.13 has critical advisories; bump to next@14.2.35)
 - **Files:** `app/app/settings/page.tsx`, `app/app/settings/actions.ts`
 - **Spec:**
   - Section: Account — shows email, plan, status. Read-only.
