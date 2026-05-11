@@ -266,7 +266,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Script exists, exits cleanly when STRIPE_SECRET_KEY is missing (with help text), creates/updates products idempotently when run with credentials.
 
 ### 3.10 — Stripe Checkout session API route (real implementation)
-- **Status:** PENDING
+- **Status:** FAILED (last attempt: 2026-05-11 — npm audit blocked: next@14.2.13 has no fix available on the 14.2.x line; advisory list has grown to 24 critical entries — operator must upgrade next to a non-vulnerable major (15.x or later) before this item can ship)
 - **Files:** `app/api/checkout/route.ts`
 - **Spec:**
   - **(needs Stripe creds at runtime)** — POST handler accepts `{ priceId }`, requires authenticated user.

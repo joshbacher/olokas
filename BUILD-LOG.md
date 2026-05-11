@@ -15,6 +15,45 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-11 23:06:16 UTC — Run #23
+- Item: 3.10 (Stripe Checkout session API route (real implementation))
+- Result: FAILED
+- Failure type: audit
+- Error (first 30 lines):
+```
+# npm audit report
+
+next  
+Severity: critical
+Next.js Allows a Denial of Service (DoS) with Server Actions - https://github.com/advisories/GHSA-7m27-7ghc-44w9
+Information exposure in Next.js dev server due to lack of origin verification - https://github.com/advisories/GHSA-3h52-269p-cp9r
+Next.js Affected by Cache Key Confusion for Image Optimization API Routes - https://github.com/advisories/GHSA-g5qg-72qw-gw5v
+Next.js authorization bypass vulnerability - https://github.com/advisories/GHSA-7gfc-8cq8-jh5f
+Next.js Improper Middleware Redirect Handling Leads to SSRF - https://github.com/advisories/GHSA-4342-x723-ch2f
+Next.js Content Injection Vulnerability for Image Optimization - https://github.com/advisories/GHSA-xv57-4mr9-wg8v
+Next.js Race Condition to Cache Poisoning - https://github.com/advisories/GHSA-qpjv-v59x-3qc4
+Next Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-mwv6-3258-q52c
+Next has a Denial of Service with Server Components - Incomplete Fix Follow-Up - https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration - https://github.com/advisories/GHSA-9g9p-9gw9-jx7f
+Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components - https://github.com/advisories/GHSA-h25m-26qc-wcjf
+Authorization Bypass in Next.js Middleware - https://github.com/advisories/GHSA-f82v-jwr5-mffw
+Next.js: HTTP request smuggling in rewrites - https://github.com/advisories/GHSA-ggv3-7p47-pfv8
+Next.js: Unbounded next/image disk cache growth can exhaust storage - https://github.com/advisories/GHSA-3x4c-7xq6-9pq8
+Next.js has a Denial of Service with Server Components - https://github.com/advisories/GHSA-q4gf-8mx6-v5v3
+Next.js Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-8h8q-6873-q5fj
+Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces - https://github.com/advisories/GHSA-ffhc-5mcf-pf4q
+Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting - https://github.com/advisories/GHSA-vfv6-92ff-j949
+Next.js has cross-site scripting in beforeInteractive scripts with untrusted input - https://github.com/advisories/GHSA-gx5p-jg67-6x7h
+Next.js has a Denial of Service in the Image Optimization API - https://github.com/advisories/GHSA-h64f-5h5j-jqjh
+Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades - https://github.com/advisories/GHSA-c4j6-fc7j-m34r
+Next.js vulnerable to cache poisoning in React Server Component responses - https://github.com/advisories/GHSA-wfc6-r584-vfw7
+Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n - https://github.com/advisories/GHSA-36qx-fr4f-26g5
+Next.js's Middleware / Proxy redirects can be cache-poisoned - https://github.com/advisories/GHSA-3g8h-86w9-wvmq
+Depends on vulnerable versions of postcss
+No fix available
+```
+- Notes: build verification failed at the `npm audit --audit-level=high --omit=dev` gate before tsc / next build ever ran, so the implementation file (`app/api/checkout/route.ts` — 227 lines, full POST handler with zod body validation, anon-key Supabase auth gate via supabase.auth.getUser(), env-built allow-list across the six STRIPE_PRICE_* vars from 3.9, ensureCustomerRecord lookup, on-demand stripe.customers.create with the supabase_user_id carried as metadata and the new id persisted via the service-role client, then stripe.checkout.sessions.create with mode=subscription / client_reference_id / allow_promotion_codes=true and success_url/cancel_url anchored at NEXT_PUBLIC_SITE_URL → /app/onboarding?checkout_session_id={CHECKOUT_SESSION_ID} and /pricing?checkout=cancelled) was stashed and is NOT pushed. **Escalation since Run #21:** the advisory chain on `next@14.2.13` has grown from 15 entries to 24, and where the previous failure could be patched in-range with `next@14.2.35`, npm now reports `No fix available` — the 14.2.x line has been abandoned by the security advisory database. New entries since the last audit run include cross-site scripting in App Router applications using CSP nonces (GHSA-ffhc-5mcf-pf4q), cache poisoning via collisions in React Server Component cache-busting (GHSA-vfv6-92ff-j949), XSS in beforeInteractive scripts with untrusted input (GHSA-gx5p-jg67-6x7h), DoS in the Image Optimization API (GHSA-h64f-5h5j-jqjh), SSRF via WebSocket upgrades (GHSA-c4j6-fc7j-m34r), cache poisoning in RSC responses (GHSA-wfc6-r584-vfw7), middleware/proxy bypass in Pages Router i18n (GHSA-36qx-fr4f-26g5), and middleware/proxy redirect cache poisoning (GHSA-3g8h-86w9-wvmq). The moderate `postcss` XSS via unescaped `</style>` in stringify output (GHSA-qx2v-qp2m-jg93) is still present, also marked No fix available because the fix flows through the abandoned next 14.2.x branch. Operator unblock path is no longer a one-line patch bump — this is now a major Next.js upgrade. Recommended remediation: bump `package.json` to `"next": "^15.5.0"` (or whichever current 15.x is the latest stable at unblock time), update `"eslint-config-next"` to the matching 15.x major, run `npm install` to refresh the lockfile, then run `npm audit --audit-level=high --omit=dev` locally to confirm the advisory chain clears. Pin lockfile, push. After the bump, several items will need re-validation against Next 15: middleware.ts (Edge runtime API surface tightened in 15), all server actions in app/app/queries/actions.ts (cookies()/headers() are now async-only — both already use the async pattern, so this should be a clean port), and app/api/webhooks/stripe/route.ts (Request body parsing semantics unchanged but worth a smoke test). Once green, flip 3.8, 3.9, and 3.10 from FAILED back to PENDING in WORK-QUEUE.md; the cron will resume linearly from 3.8 → 3.9 → 3.10 → 3.11 → 3.12 → 3.13. **Circuit breaker note:** last two BUILD-LOG entries before this run were Run #22 (SKIPPED) + Run #21 (FAILED), so per spec the breaker was NOT armed and this run correctly attempted work — but the audit gate's underlying state hasn't moved, so the FAILED outcome was effectively pre-determined the moment we read package.json. Next run's breaker check will see Run #23 (FAILED) + Run #22 (SKIPPED) — still not two FAILEDs in a row, so Run #24 will also attempt new work and almost certainly FAIL the same way until the operator lands the Next 15 upgrade. The 3.10 code itself reads sound and can be re-applied unchanged once the audit gate clears: it follows the same auth/RLS pattern as Run #18's queries/actions.ts (anon-key client carrying the session cookie for auth.getUser, then ensureCustomerRecord to load the row, then admin client only for the writes that need RLS bypass — here, the stripe_customer_id persistence after Stripe.customers.create), the allow-list is rebuilt per-request so freshly-rotated env vars take effect without a redeploy, and every error path returns a non-leaky JSON shape. No deploy promotion check ran (nothing was pushed); olokas.com continues serving the prior healthy deploy (commit fd78c16 / Run #19's /app/reports work).
+
 ## 2026-05-11 19:04:07 UTC — Run #22
 - Item: 3.9 (Stripe setup script (creates products + prices))
 - Result: SKIPPED
