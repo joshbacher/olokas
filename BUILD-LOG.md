@@ -15,6 +15,46 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-11 07:05:42 UTC — Run #21
+- Item: 3.9 (Stripe setup script (creates products + prices))
+- Result: FAILED
+- Failure type: audit
+- Error (first 30 lines):
+```
+# npm audit report
+
+next  0.9.9 - 16.3.0-canary.5
+Severity: critical
+Next.js Allows a Denial of Service (DoS) with Server Actions - https://github.com/advisories/GHSA-7m27-7ghc-44w9
+Information exposure in Next.js dev server due to lack of origin verification - https://github.com/advisories/GHSA-3h52-269p-cp9r
+Next.js Affected by Cache Key Confusion for Image Optimization API Routes - https://github.com/advisories/GHSA-g5qg-72qw-gw5v
+Next.js authorization bypass vulnerability - https://github.com/advisories/GHSA-7gfc-8cq8-jh5f
+Next.js Improper Middleware Redirect Handling Leads to SSRF - https://github.com/advisories/GHSA-4342-x723-ch2f
+Next.js Content Injection Vulnerability for Image Optimization - https://github.com/advisories/GHSA-xv57-4mr9-wg8v
+Next.js Race Condition to Cache Poisoning - https://github.com/advisories/GHSA-qpjv-v59x-3qc4
+Next Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-mwv6-3258-q52c
+Next has a Denial of Service with Server Components - Incomplete Fix Follow-Up - https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration - https://github.com/advisories/GHSA-9g9p-9gw9-jx7f
+Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components - https://github.com/advisories/GHSA-h25m-26qc-wcjf
+Authorization Bypass in Next.js Middleware - https://github.com/advisories/GHSA-f82v-jwr5-mffw
+Next.js: HTTP request smuggling in rewrites - https://github.com/advisories/GHSA-ggv3-7p47-pfv8
+Next.js: Unbounded next/image disk cache growth can exhaust storage - https://github.com/advisories/GHSA-3x4c-7xq6-9pq8
+Next.js has a Denial of Service with Server Components - https://github.com/advisories/GHSA-q4gf-8mx6-v5v3
+Depends on vulnerable versions of postcss
+fix available via `npm audit fix --force`
+Will install next@14.2.35, which is outside the stated dependency range
+node_modules/next
+
+postcss  <8.5.10
+Severity: moderate
+PostCSS has XSS via Unescaped </style> in its CSS Stringify Output - https://github.com/advisories/GHSA-qx2v-qp2m-jg93
+fix available via `npm audit fix --force`
+Will install next@14.2.35, which is outside the stated dependency range
+node_modules/next/node_modules/postcss
+```
+- Notes: audit gate still blocked on the same pre-existing critical chain that took down Run #20 (3.8). package.json still pins `"next": "14.2.13"` exactly (no caret) — no operator bump has landed since Run #20's failure on 2026-05-10. Skipped the 3.9 implementation work entirely this run rather than write `scripts/stripe-setup.ts` + `lib/stripe/products.ts` + the `stripe:setup` package.json script only to have them stashed at the audit gate (3.9 doesn't touch the next dependency, so the audit failure is pre-existing and unrelated to anything 3.9 would add). Spec calls this the "bounce to a human" path; logging it cleanly so the operator's path is clear: edit package.json to `"next": "14.2.35"` (still 14.2.x — patch bump only, no major/minor move), run `npm install` to repin the lockfile, push, then flip 3.8 + 3.9 back to PENDING in WORK-QUEUE.md. Both items' implementation work is decoupled from the upgrade and will resume cleanly once the dep lands. Note: this is the second consecutive FAILED run (Run #20 + Run #21), so per spec the circuit breaker arms for Run #22 — the next scheduled run will append a SKIPPED entry instead of attempting work, until the operator unblocks. No code changes pushed; only WORK-QUEUE.md (3.9 PENDING → FAILED) + BUILD-LOG.md updated. olokas.com continues serving the prior healthy deploy (commit fd78c16 / Run #19's /app/reports work).
+
+
 ## 2026-05-10 03:08:00 UTC — Run #20
 - Item: 3.8 (Settings page (Stripe portal link + account info))
 - Result: FAILED
