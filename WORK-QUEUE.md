@@ -255,7 +255,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Page renders all sections, manage-subscription button correctly enabled/disabled based on subscription state, account deletion works.
 
 ### 3.9 — Stripe setup script (creates products + prices)
-- **Status:** PENDING
+- **Status:** DONE (commit 5f38c64)
 - **Files:** `scripts/stripe-setup.ts`, update `package.json` to add a "stripe:setup" npm script
 - **Spec:**
   - **(needs Stripe creds)** — script will fail if STRIPE_SECRET_KEY env var is missing, with a helpful message.

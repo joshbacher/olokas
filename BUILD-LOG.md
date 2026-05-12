@@ -15,6 +15,20 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-12 19:12:53 UTC — Run #25
+- Item: 3.9 (Stripe setup script (creates products + prices))
+- Result: SUCCESS
+- Files changed: 5
+- Notes: Phase 3.9 lands. New `scripts/stripe-setup.ts` is the operator-run script that idempotently provisions the three Olokas tier products (Starter, Pro, Agency) plus their monthly+annual price pairs in Stripe — products matched by `metadata.olokas_tier` and prices matched by `lookup_key` (`olokas_<tier>_<interval>`), so re-running the script is a safe no-op when nothing has drifted and an in-place `products.update` if name/description drift between marketing copy and the Stripe dashboard. Prices in Stripe are immutable; if a `unit_amount` or `recurring.interval` changes here, the script creates a NEW price reusing the same `lookup_key` (Stripe transfers the key off the old price automatically) and emits the new price ID for the operator to paste into Vercel env. New `lib/stripe/products.ts` is the source-of-truth definitions module: it imports `PRICING_TIERS` from `lib/pricing/tiers.ts` and derives `STRIPE_PRODUCTS` (the array of tier defs) plus the exported `METADATA_TIER_KEY` constant, so the dollars on the marketing pricing page and the dollars that hit a customer's card share one definition — monthly price comes straight from `tier.monthly.price * 100` (cents), annual comes from `tier.annual.yearlyTotal * 100` (the single yearly charge, not month × 12). Each price def carries its target env var name (`STRIPE_PRICE_${TIER}_MONTHLY` / `_ANNUAL` — the six slots already listed in `.env.example`) so the final summary table the script prints can be copy-pasted directly into the Vercel env editor. Missing-key path: bare `npm run stripe:setup` with no `STRIPE_SECRET_KEY` exits 1 with a 6-line help block pointing to dashboard.stripe.com → Developers → API keys; a key with the wrong prefix (anything not `sk_test_` / `sk_live_`) is also rejected before any network call. Live-mode detection logs a `⚠ This will create/update LIVE products` banner when the key starts with `sk_live_`. `package.json` gains a `"stripe:setup": "node scripts/stripe-setup.ts"` script — no new dep added; Node 22.22.0 (the version in this Vercel/CI environment) supports TypeScript natively via the default `--experimental-strip-types` behavior, so the script runs with plain `node`. `tsconfig.json` gains `"allowImportingTsExtensions": true` (safe under the existing `noEmit: true` setup) so the script can use `import "../lib/stripe/products.ts"` (Node's native TS loader requires explicit `.ts` extensions in import paths); the new `lib/stripe/products.ts` likewise imports `"../pricing/tiers.ts"` with the extension. No app/route code, no DB migrations, no env-var shape changes — this is operator tooling only, runs locally against the operator's machine and Stripe API.
+- Deferred advisories:
+  - `next` (critical, 24 advisory entries) — No fix available. Operator must do a major upgrade. Tracked separately as M.1.
+  - `postcss` (moderate, 1 advisory entry) — No fix available. Operator must do a major upgrade. Tracked separately as M.1.
+- Audit: 2 advisories, all marked "No fix available" → deferred per cron spec, not blocking.
+- Typecheck: clean.
+- Build: clean (33 routes built, no errors).
+- Operational note: npm install was skipped this run — the diff to `package.json` adds only a `scripts` entry, no dep changes, so the lockfile is unchanged and the existing node_modules from a prior cron run continued to satisfy every entry in `package-lock.json`. Local disk was at 95% so a fresh install would have ENOSPC'd anyway; skipping was the correct outcome regardless. (If a future run does change deps, the install path remains gated on `git diff --name-only HEAD | grep package.json` per the cron spec.)
+
+
 ## 2026-05-12 07:11:59 UTC — Run #24
 - Item: 3.8 (Settings page (Stripe portal link + account info))
 - Result: SUCCESS
