@@ -266,7 +266,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Script exists, exits cleanly when STRIPE_SECRET_KEY is missing (with help text), creates/updates products idempotently when run with credentials.
 
 ### 3.10 — Stripe Checkout session API route (real implementation)
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit 8425254)
 - **Files:** `app/api/checkout/route.ts`
 - **Spec:**
   - **(needs Stripe creds at runtime)** — POST handler accepts `{ priceId }`, requires authenticated user.
