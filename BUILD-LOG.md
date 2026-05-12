@@ -23,6 +23,8 @@ Each entry is one autonomous build run. Newest at top.
 - Deferred advisories:
   - `next` (critical, 24 advisory entries) — No fix available. Operator must do a major upgrade. Tracked separately as M.1.
   - `postcss` (moderate, 1 advisory entries) — No fix available. Operator must do a major upgrade. Tracked separately as M.1.
+- Commit: 7e7bd35
+- Post-push verification: HTTP 200, edge cache age=0, seconds-since-push=146. New deploy promoted ✓ (age 0 < 146s). Spot-check: /app/settings returns 307 → /login?next=%2Fapp%2Fsettings, confirming the new route is live behind the layout auth guard.
 
 ## 2026-05-11 23:06:16 UTC — Run #23
 - Item: 3.10 (Stripe Checkout session API route (real implementation))
