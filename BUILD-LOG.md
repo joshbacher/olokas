@@ -15,6 +15,15 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-12 07:11:59 UTC — Run #24
+- Item: 3.8 (Settings page (Stripe portal link + account info))
+- Result: SUCCESS
+- Files changed: 7
+- Notes: Phase 3.8 lands. New `app/app/settings/page.tsx` (server component) renders four sections in order — Account (read-only email/plan/status with an Upgrade → link for free-plan users and a status Badge), Billing (`<ManageBillingButton>` client component disabled with "You're on the free plan — start a subscription from Pricing." when `customers.stripe_customer_id` is null, otherwise live; on click it POSTs to `/api/portal` and follows the returned `{ url }` via `window.location.assign`), API access (Pro+ gating: free/Starter accounts see a "API keys unlock on Pro and Agency plans → See plans" CTA; Pro/Agency accounts see a "Coming in Phase 4" pill), and Danger Zone (`<DeleteAccountForm>` client component, two-stage expand-then-confirm flow that mirrors the GitHub/Stripe pattern). New `app/app/settings/actions.ts` carries the `deleteAccountAction` server action: zod-validated `confirm_email` field, requires the typed email to case-insensitively match `user.email`, then `supabase.auth.admin.deleteUser(user.id)` via the service-role client — the customers FK is `REFERENCES auth.users(id) ON DELETE CASCADE` (supabase/migrations/0001_initial.sql L14), so every downstream table (`domains`, `customer_queries`, `scan_results`, `reports`, etc.) cascades from one row drop with no manual fan-out, then signOut() clears the now-stale cookie and `redirect("/?goodbye=1")` lands the user back at marketing. New `delete-account-form.tsx` uses `useFormState` + `useFormStatus` so the action surfaces inline `error` / `fieldError` without a redirect-and-toast hop, with aria-invalid + aria-describedby tying the destructive banner to the input. New `manage-billing-button.tsx` carries the portal-fetch logic with `useTransition` for the pending state — until 3.11 ships the real `/api/portal` POST handler the stub returns 501 and the button surfaces "Stripe billing portal isn't reachable right now. Please try again shortly." instead of silently failing. The portal route itself is unchanged in this PR (3.11's domain).
+- Deferred advisories:
+  - `next` (critical, 24 advisory entries) — No fix available. Operator must do a major upgrade. Tracked separately as M.1.
+  - `postcss` (moderate, 1 advisory entries) — No fix available. Operator must do a major upgrade. Tracked separately as M.1.
+
 ## 2026-05-11 23:06:16 UTC — Run #23
 - Item: 3.10 (Stripe Checkout session API route (real implementation))
 - Result: FAILED
