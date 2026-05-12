@@ -313,3 +313,31 @@ These items assume the Supabase migration has been run (it has — see commit no
   - Progress indicator at top showing current step.
   - "Skip for now" link on each step → /app/dashboard, but track that onboarding wasn't completed.
 - **DoD:** New user post-Checkout flows through all 4 steps, ends with queued scan jobs, lands on dashboard.
+
+---
+
+## Operator-initiated items (cron skips BLOCKED status)
+
+### M.1 — Migrate to Next.js 15.x
+- **Status:** BLOCKED  *(operator flips to PENDING when ready to invest in the migration)*
+- **Why this isn't autonomous:** Next 14.2.x has been abandoned by the security advisory database. Per Run #23's audit output, 24 high/critical advisories on `next@14.2.13` are marked "No fix available." The cron's audit gate now treats unfixable advisories as warnings (so the queue keeps moving), but the underlying advisories are real and should be cleared with a proper migration.
+- **Files that need changes:**
+  - 6 dynamic-route files need async `params` migration:
+    - `app/(marketing)/audit/[auditId]/page.tsx`
+    - `app/(marketing)/blog/[slug]/page.tsx`
+    - `app/(marketing)/vs/[competitor]/page.tsx`
+    - `app/app/reports/[id]/page.tsx`
+    - `app/api/audit/[auditId]/email/route.ts`
+    - `app/api/audit/[auditId]/status/route.ts`
+  - Pattern for each: type changes from `{ params: { key: string } }` to `{ params: Promise<{ key: string }> }`, function body adds `const { key } = await params;` (or rename destructure to `paramsPromise` + `const params = await paramsPromise;` to minimize body changes).
+  - `package.json`: bump `next` to `^15.5.18` (latest stable 15.x as of 2026-05-11), `eslint-config-next` to matching major.
+  - Decide on React: 15.5.x supports React 18 and 19. Staying on React 18 is simpler.
+  - `middleware.ts`: smoke-test — Edge runtime API surface tightened in 15. Code currently uses the async pattern, should port cleanly.
+  - `lib/supabase/server.ts` and `lib/supabase/middleware.ts`: `cookies()` is now async-only. Existing code awaits already so should be fine.
+- **DoD:**
+  - `npm audit --audit-level=high --omit=dev` exits 0 (the 24 next-related advisories clear)
+  - `tsc --noEmit` and `next build` both clean
+  - Local smoke against `next start`: every previously-200 route still 200
+  - Deploy promotes successfully on Vercel
+- **Estimated effort:** one focused operator session with adequate disk; not a single cron run.
+- **Risk if deferred:** the high-severity advisories remain present. Notable ones include cross-site scripting in App Router with CSP nonces (GHSA-ffhc-5mcf-pf4q), SSRF via WebSocket upgrades (GHSA-c4j6-fc7j-m34r), cache poisoning in RSC responses (GHSA-wfc6-r584-vfw7), and Middleware/Proxy bypass (GHSA-4342-x723-ch2f). Most require specific exploit conditions that don't apply to Olokas's current surface (no Pages Router, no untrusted CSP-nonce-using scripts, no WebSocket upgrades), but the threat surface grows as Phase 3+ ships more endpoints.
