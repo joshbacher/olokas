@@ -27,7 +27,7 @@ Each entry is one autonomous build run. Newest at top.
 - Typecheck: clean.
 - Build: clean (33 routes built, no errors).
 - Operational note: npm install was skipped this run — the diff to `package.json` adds only a `scripts` entry, no dep changes, so the lockfile is unchanged and the existing node_modules from a prior cron run continued to satisfy every entry in `package-lock.json`. Local disk was at 95% so a fresh install would have ENOSPC'd anyway; skipping was the correct outcome regardless. (If a future run does change deps, the install path remains gated on `git diff --name-only HEAD | grep package.json` per the cron spec.)
-
+- Post-push verification: HTTP 200, edge cache age=0, seconds-since-push=150. New deploy promoted ✓ (age 0 < 150s). Second probe confirms fresh edge state (age=5, well under threshold). Commit on production: 3dc42a3.
 
 ## 2026-05-12 07:11:59 UTC — Run #24
 - Item: 3.8 (Settings page (Stripe portal link + account info))
