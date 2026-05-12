@@ -245,7 +245,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** /app/reports renders for any authed user, table populates with real data when reports exist, empty state otherwise.
 
 ### 3.8 — Settings page (Stripe portal link + account info)
-- **Status:** FAILED (last attempt: 2026-05-10 — npm audit blocked: next@14.2.13 has critical advisories; bump to next@14.2.35)
+- **Status:** PENDING
 - **Files:** `app/app/settings/page.tsx`, `app/app/settings/actions.ts`
 - **Spec:**
   - Section: Account — shows email, plan, status. Read-only.
@@ -255,7 +255,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Page renders all sections, manage-subscription button correctly enabled/disabled based on subscription state, account deletion works.
 
 ### 3.9 — Stripe setup script (creates products + prices)
-- **Status:** FAILED (last attempt: 2026-05-11 — npm audit blocked: next@14.2.13 has critical advisories; bump to next@14.2.35)
+- **Status:** PENDING
 - **Files:** `scripts/stripe-setup.ts`, update `package.json` to add a "stripe:setup" npm script
 - **Spec:**
   - **(needs Stripe creds)** — script will fail if STRIPE_SECRET_KEY env var is missing, with a helpful message.
@@ -266,7 +266,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Script exists, exits cleanly when STRIPE_SECRET_KEY is missing (with help text), creates/updates products idempotently when run with credentials.
 
 ### 3.10 — Stripe Checkout session API route (real implementation)
-- **Status:** FAILED (last attempt: 2026-05-11 — npm audit blocked: next@14.2.13 has no fix available on the 14.2.x line; advisory list has grown to 24 critical entries — operator must upgrade next to a non-vulnerable major (15.x or later) before this item can ship)
+- **Status:** PENDING
 - **Files:** `app/api/checkout/route.ts`
 - **Spec:**
   - **(needs Stripe creds at runtime)** — POST handler accepts `{ priceId }`, requires authenticated user.
