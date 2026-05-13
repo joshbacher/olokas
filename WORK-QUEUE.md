@@ -278,7 +278,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Authenticated user can call /api/checkout with a valid priceId and get a session URL. Build clean. (E2E only works with real Stripe creds.)
 
 ### 3.11 — Stripe Customer Portal API route
-- **Status:** DONE (commit fafc974b0be1c7d3aa526b4b6637f5bc0beb7178)
+- **Status:** DONE (commit 7801e2968545cdfc4de414fa0dfbe5e668da504a)
 - **Files:** `app/api/portal/route.ts`
 - **Spec:**
   - **(needs Stripe creds at runtime)** — POST handler, requires authenticated user.
