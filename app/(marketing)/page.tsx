@@ -44,8 +44,14 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-[620px] flex-col px-7 pb-[6vh] pt-[14vh] sm:px-7">
-      <header className="mb-[8vh]">
+      <header className="mb-[8vh] flex items-center justify-between">
         <BrandMark />
+        <a
+          href="/login"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Sign in
+        </a>
       </header>
 
       <section>
