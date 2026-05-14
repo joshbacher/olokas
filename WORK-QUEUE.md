@@ -288,7 +288,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Build clean, authenticated users with a stripe_customer_id can hit /api/portal.
 
 ### 3.12 — Stripe webhook handlers (real subscription lifecycle)
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit fba14387a722388d710a2251c27c7b5467cb1f04)
 - **Files:** `app/api/webhooks/stripe/route.ts`
 - **Spec:**
   - Replace the existing stub (which only logs events) with real handlers for the events listed below.
