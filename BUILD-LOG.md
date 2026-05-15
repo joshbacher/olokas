@@ -15,6 +15,22 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-15 07:05:30 UTC — Run #31
+- Item: (none — queue scan)
+- Result: SKIPPED — QUEUE EMPTY
+- Notes: WORK-QUEUE.md scan found 0 items with status `PENDING` (24 DONE, 1 FAILED, 1 BLOCKED). Per cron Step 3 — "If no items have status `PENDING` (i.e., all are DONE/FAILED/BLOCKED), append a 'QUEUE EMPTY' entry to BUILD-LOG.md, commit + push, exit." — this run writes the QUEUE EMPTY marker and exits without attempting work. Queue state is unchanged from Run #30 (~4h ago): nothing in the repo has moved between the two runs.
+- Queue snapshot:
+  - 24 items DONE (Phase 2.1–2.7, Phase 5.1, Phase 6.1–6.4, Phase 3.1–3.12).
+  - 1 item FAILED: 3.13 (Onboarding flow) — last attempted in Run #29 against the audit gate (npm flags `next@14.2.13` → `next@16.2.6` as a fix with `isSemVerMajor: true`, which the cron's current FIXABLE_COUNT logic counts as fixable and blocks on). Code itself was sound in Run #29 (tsc clean); the gate is the only thing standing between the implementation and a deploy. Same failure mode every retry until operator intervention.
+  - 1 item BLOCKED: M.1 (Migrate to Next.js 15.x) — operator-only per HARD RULES; cron does not attempt.
+- Circuit breaker: not armed. Last two BUILD-LOG entries are Run #30 (SKIPPED — QUEUE EMPTY) and Run #29 (FAILED) — only one consecutive FAILED, so the breaker stays disarmed. Not relevant for this run anyway since no work is being attempted.
+- No code, WORK-QUEUE.md, or other-file changes — only BUILD-LOG.md updated. olokas.com continues serving the prior healthy deploy (commit fba1438 from Run #28's 3.12 work; Run #29 and Run #30 did not change the live deploy).
+- Operator unblock paths (unchanged from Run #29 / Run #30):
+  - **(a)** Land M.1 in a focused operator session (DoD lives in WORK-QUEUE.md under M.1) and then flip 3.13's status from FAILED back to PENDING. This is the long-term right answer — clears the 24 critical Next.js advisories that have been "deferred" since Run #24.
+  - **(b)** Patch the cron task file's FIXABLE_COUNT loop to skip entries where `fixAvailable.isSemVerMajor === true`, since a major dep bump is by construction outside what one ~30-60 minute cron run can safely land. After the patch, manually flip 3.13 to PENDING. The next run will then ship 3.13's Onboarding flow under the deferred-advisory branch (same path Run #24–#28 used).
+  - Without one of those, every subsequent cron tick will land here again with the same QUEUE EMPTY exit.
+- Heads-up to operator: this is the 2nd consecutive QUEUE EMPTY run. No deliverable changed today (Run #30 + this Run #31 are both no-op SKIPPED on the same state). If the operator wants 3.13 to ship soon, path (b) is the smaller change — three lines of Python in the cron task file plus flipping the WORK-QUEUE entry — and lets the cron drain the queue on its own. Path (a) is the right cleanup but takes a focused session.
+
 ## 2026-05-15 03:09:06 UTC — Run #30
 - Item: (none — queue scan)
 - Result: SKIPPED — QUEUE EMPTY
