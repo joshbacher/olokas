@@ -15,6 +15,21 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-15 03:09:06 UTC — Run #30
+- Item: (none — queue scan)
+- Result: SKIPPED — QUEUE EMPTY
+- Notes: WORK-QUEUE.md scan found 0 items with status `PENDING` (24 DONE, 1 FAILED, 1 BLOCKED). Per cron Step 3 — "If no items have status `PENDING` (i.e., all are DONE/FAILED/BLOCKED), append a 'QUEUE EMPTY' entry to BUILD-LOG.md, commit + push, exit." — this run does not attempt work and writes the QUEUE EMPTY marker.
+- Queue snapshot:
+  - 24 items DONE (Phase 2.1–2.7, Phase 5.1, Phase 6.1–6.4, Phase 3.1–3.12).
+  - 1 item FAILED: 3.13 (Onboarding flow) — last attempted in Run #29; failed on the npm audit gate because npm's advisory database now reports `fixAvailable: {"name":"next","version":"16.2.6","isSemVerMajor":true}` for the `next@14.2.13` advisories, which the cron's current FIXABLE_COUNT logic counts as fixable. Code implementation itself was sound (tsc clean), but the audit gate blocks the push. Operator action required: either land the M.1 migration (which will clear the next-related advisories) and then flip 3.13 PENDING, or update the cron's audit-gate logic to treat `isSemVerMajor: true` as deferred (Run #29's notes lay out both options in detail). Without one of those, retrying 3.13 produces an identical failure.
+  - 1 item BLOCKED: M.1 (Migrate to Next.js 15.x) — operator-only; cron does not attempt BLOCKED items per HARD RULES.
+- Circuit breaker: not armed (last two runs were Run #29 FAILED + Run #28 SUCCESS — only one consecutive FAILED). Not relevant for this run since no work was attempted.
+- No code, WORK-QUEUE.md, or other-file changes — only BUILD-LOG.md updated. olokas.com continues serving the prior healthy deploy (Run #28's 3.12 commit fba1438).
+- Operator unblock paths (unchanged from Run #29's recommendations):
+  - **(a)** Land M.1 in a focused operator session (DoD lives in WORK-QUEUE.md under M.1) and then flip 3.13's status from FAILED back to PENDING. This is the long-term right answer — clears the 24 critical Next.js advisories that have been "deferred" since Run #24.
+  - **(b)** Patch the cron task file's FIXABLE_COUNT loop to skip entries where `fixAvailable.isSemVerMajor === true`, since a major dep bump is by construction outside what one ~30-60 minute cron run can safely land. After the patch, manually flip 3.13 to PENDING. The next run will then ship 3.13's Onboarding flow under the deferred-advisory branch (same path the prior 3.10–3.12 runs took).
+  - Either path requires operator action between now and the next cron tick; otherwise the next run will hit this same QUEUE EMPTY exit.
+
 ## 2026-05-15 01:39:17 UTC — Run #29
 - Item: 3.13 (Onboarding flow (4-step post-checkout))
 - Result: FAILED
