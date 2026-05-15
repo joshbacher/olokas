@@ -302,7 +302,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Real subscription lifecycle is implemented. Build clean. (E2E test requires real Stripe webhook events.)
 
 ### 3.13 — Onboarding flow (4-step post-checkout)
-- **Status:** PENDING
+- **Status:** FAILED  *(Last attempt: 2026-05-14 — audit gate; see Run #29)*
 - **Files:** `app/app/onboarding/page.tsx`, `app/app/onboarding/actions.ts`, `components/onboarding/*`
 - **Spec:**
   - 4 steps as separate components, switched via local state (no URL routing per step):

@@ -15,6 +15,50 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-15 01:39:17 UTC — Run #29
+- Item: 3.13 (Onboarding flow (4-step post-checkout))
+- Result: FAILED
+- Failure type: audit
+- Error (first 30 lines):
+```
+# npm audit report
+
+next  0.9.9 - 16.3.0-canary.5
+Severity: critical
+Next.js Allows a Denial of Service (DoS) with Server Actions - https://github.com/advisories/GHSA-7m27-7ghc-44w9
+Information exposure in Next.js dev server due to lack of origin verification - https://github.com/advisories/GHSA-3h52-269p-cp9r
+Next.js Affected by Cache Key Confusion for Image Optimization API Routes - https://github.com/advisories/GHSA-g5qg-72qw-gw5v
+Next.js authorization bypass vulnerability - https://github.com/advisories/GHSA-7gfc-8cq8-jh5f
+Next.js Improper Middleware Redirect Handling Leads to SSRF - https://github.com/advisories/GHSA-4342-x723-ch2f
+Next.js Content Injection Vulnerability for Image Optimization - https://github.com/advisories/GHSA-xv57-4mr9-wg8v
+Next.js Race Condition to Cache Poisoning - https://github.com/advisories/GHSA-qpjv-v59x-3qc4
+Next Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-mwv6-3258-q52c
+Next has a Denial of Service with Server Components - Incomplete Fix Follow-Up - https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration - https://github.com/advisories/GHSA-9g9p-9gw9-jx7f
+Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components - https://github.com/advisories/GHSA-h25m-26qc-wcjf
+Authorization Bypass in Next.js Middleware - https://github.com/advisories/GHSA-f82v-jwr5-mffw
+Next.js: HTTP request smuggling in rewrites - https://github.com/advisories/GHSA-ggv3-7p47-pfv8
+Next.js: Unbounded next/image disk cache growth can exhaust storage - https://github.com/advisories/GHSA-3x4c-7xq6-9pq8
+Next.js has a Denial of Service with Server Components - https://github.com/advisories/GHSA-q4gf-8mx6-v5v3
+Next.js Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-8h8q-6873-q5fj
+Next.js's Middleware / Proxy redirects can be cache-poisoned - https://github.com/advisories/GHSA-3g8h-86w9-wvmq
+Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces - https://github.com/advisories/GHSA-ffhc-5mcf-pf4q
+Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting - https://github.com/advisories/GHSA-vfv6-92ff-j949
+Next.js has cross-site scripting in beforeInteractive scripts with untrusted input - https://github.com/advisories/GHSA-gx5p-jg67-6x7h
+Next.js has a Denial of Service in the Image Optimization API - https://github.com/advisories/GHSA-h64f-5h5j-jqjh
+Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades - https://github.com/advisories/GHSA-c4j6-fc7j-m34r
+Next.js vulnerable to cache poisoning in React Server Component responses - https://github.com/advisories/GHSA-wfc6-r584-vfw7
+Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n - https://github.com/advisories/GHSA-36qx-fr4f-26g5
+Depends on vulnerable versions of postcss
+fix available via `npm audit fix --force`
+```
+- Notes: build verification failed at the `npm audit --audit-level=high --omit=dev` gate before tsc / next build's package-level outcomes were used to ship. The 3.13 implementation itself is sound — `tsc --noEmit` exited 0 with the new code in place (typecheck.log clean), and the file set was structurally complete (`app/app/onboarding/page.tsx`, `app/app/onboarding/actions.ts`, `app/app/onboarding/action-types.ts`, `components/onboarding/onboarding-flow.tsx`, `components/onboarding/step-progress.tsx`, `components/onboarding/step-domain.tsx`, `components/onboarding/step-queries.tsx`, `components/onboarding/step-competitors.tsx`, `components/onboarding/step-scan.tsx`, plus `suggestStarterQueriesFromUrl` + expanded GENERIC_QUERIES added to `lib/queries/suggest.ts`). The implementation is being discarded per the spec's FAIL path; no app code is being pushed.
+- **Why the audit gate flipped from DEFERRED (Run #28) to FAILED (this run):** the underlying advisories on `next@14.2.13` are unchanged from Run #28 (still the same 24 critical + 1 moderate-via-postcss entries; nothing was newly disclosed in the last ~22 hours), but npm's advisory database has been updated to reference a fix path. Run #28's audit reported `fixAvailable: false` for every entry, which the cron's Python parser correctly counted as 0 fixable and routed to the DEFERRED branch. This run's audit reports `fixAvailable: {"name":"next","version":"16.2.6","isSemVerMajor":true}` for both the `next` and `postcss` entries — npm is now flagging the Next.js 16.2.6 major release as the patched version. The cron's Python check uses `v.get('fixAvailable') not in (False, None, {})`, which evaluates `True` for the new dict-shaped value, so FIXABLE_COUNT=2 and AUDIT_FAILED=1. Both fix recommendations point to the same major bump because postcss reaches the audit only as a transitive dep of next, so the npm parser folds them into one upgrade path.
+- **Why this maps to the BLOCKED M.1 item, not a one-line patch bump:** the recommended fix has `isSemVerMajor: true` and the target version (`next@16.2.6`) is the same Next.js 15+ migration M.1 captures. M.1 is explicitly BLOCKED in WORK-QUEUE.md with operator-only authority — the cron HARD RULES forbid attempting BLOCKED items, and the spec's "never make changes the spec doesn't authorize" clause covers attempting a major dep upgrade on its own. So even though the audit gate's mechanical answer is "bump to 16.2.6", that path is reserved for the operator.
+- **Recommended operator action:** either (a) land the M.1 migration this session unblocks (the original plan — DoD lives in WORK-QUEUE.md under M.1) and then flip 3.13 back to PENDING, or (b) update the cron's FIXABLE_COUNT logic to also defer when `fixAvailable.isSemVerMajor === true`, since a major bump is by construction outside what one ~30-60 minute cron run can safely land. Option (b) is a 3-line change to the Python in the cron task file (add `if isinstance(fa, dict) and fa.get('isSemVerMajor') is True: continue` to the counting loop). Either is defensible; the operator's call.
+- **Circuit-breaker state for the next run:** last two BUILD-LOG entries before this one were Run #28 (SUCCESS) and Run #27 (SUCCESS), so the breaker was not armed and this run correctly attempted work. The next run's breaker check will see Run #29 (FAILED) + Run #28 (SUCCESS) — still not two FAILEDs in a row, so Run #30 will also attempt work and will FAIL the same way unless one of the operator unblock paths above lands first. Run #31 would then be the first SKIPPED run from breaker-arming if nothing moves.
+- No code changes pushed; only WORK-QUEUE.md (3.13 PENDING → FAILED + Last-attempt note) and BUILD-LOG.md updated. olokas.com continues serving the prior healthy deploy (commit from Run #28's 3.12 work).
+
 ## 2026-05-14 03:14:11 UTC — Run #28
 - Item: 3.12 (Stripe webhook handlers (real subscription lifecycle))
 - Result: SUCCESS
