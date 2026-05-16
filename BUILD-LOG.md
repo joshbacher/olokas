@@ -15,6 +15,21 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-16 19:04:21 UTC — Run #35
+- Item: (none — queue scan)
+- Result: SKIPPED — QUEUE EMPTY
+- Notes: WORK-QUEUE.md scan found 0 items with status `PENDING` (24 DONE, 1 FAILED, 1 BLOCKED). Per cron Step 3, writing the QUEUE EMPTY marker and exiting without attempting work. Queue state is unchanged from Runs #30–#34.
+- Queue snapshot:
+  - 24 items DONE (Phase 2.1–2.7, Phase 5.1, Phase 6.1–6.4, Phase 3.1–3.12).
+  - 1 item FAILED: 3.13 (Onboarding flow) — last attempted in Run #29 against the audit gate. `fixAvailable` for `next@14.2.13` is a dict pointing at `next@16.2.6` with `isSemVerMajor: true`; current FIXABLE_COUNT treats that dict as fixable and routes to AUDIT_FAILED. Implementation itself was clean (tsc passed in Run #29); only the audit gate blocks the deploy.
+  - 1 item BLOCKED: M.1 (Migrate to Next.js 15.x) — operator-only per HARD RULES.
+- Circuit breaker: not armed. Last two BUILD-LOG entries (Run #34, Run #33) are both SKIPPED — QUEUE EMPTY, zero consecutive FAILEDs. Not relevant this run regardless.
+- No code or WORK-QUEUE.md changes — only BUILD-LOG.md updated. olokas.com continues serving the prior healthy deploy (Run #28 / commit fba1438); Runs #29–#35 have not changed the live deploy.
+- Operator unblock paths (unchanged):
+  - **(a)** Land M.1 in a focused operator session, then flip 3.13 PENDING. Long-term right answer — clears the 24 deferred Next.js advisories.
+  - **(b)** Patch the cron's FIXABLE_COUNT loop to skip entries where `fixAvailable.isSemVerMajor === true`, then flip 3.13 PENDING. Smaller change; ships 3.13 under the deferred-advisory branch.
+- Heads-up: **6th consecutive QUEUE EMPTY run** (Run #30 → #31 → #32 → #33 → #34 → #35). Repo has been static for ~34h. Each tick the cron wakes, clones, scans, writes this entry, pushes, exits — no forward progress until an operator picks path (a) or (b).
+
 ## 2026-05-16 07:04:18 UTC — Run #34
 - Item: (none — queue scan)
 - Result: SKIPPED — QUEUE EMPTY
