@@ -15,6 +15,18 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-17 03:04:13 UTC — Run #37
+- Item: (none — queue scan)
+- Result: SKIPPED — QUEUE EMPTY
+- Notes: WORK-QUEUE.md scan found 0 PENDING items (24 DONE, 1 FAILED, 1 BLOCKED). Per cron Step 3, writing the QUEUE EMPTY marker and exiting. State unchanged from Runs #30–#36 — **8th consecutive QUEUE EMPTY run**; repo has been static for ~42h.
+- Queue snapshot: 24 DONE (Phase 2.1–2.7, 5.1, 6.1–6.4, 3.1–3.12) · 1 FAILED: 3.13 Onboarding flow (audit gate; last attempted Run #29 — `fixAvailable.isSemVerMajor: true` for `next@14.2.13` → `next@16.2.6`, current FIXABLE_COUNT logic counts as fixable) · 1 BLOCKED: M.1 Next.js 15.x migration (operator-only).
+- Circuit breaker: not armed. Last two entries (Run #36, Run #35) both SKIPPED — QUEUE EMPTY. Zero consecutive FAILEDs. Not relevant this run regardless (no work attempted).
+- No code or WORK-QUEUE.md changes — only BUILD-LOG.md updated. Live deploy remains commit fba1438 (Run #28 / item 3.12); Runs #29–#37 have not changed olokas.com.
+- Operator unblock paths (unchanged across Runs #29–#36):
+  - **(a)** Land M.1 in a focused operator session, then flip 3.13 → PENDING. Long-term right answer — clears the 24 deferred Next.js advisories.
+  - **(b)** Patch the cron task file's FIXABLE_COUNT loop to skip entries where `fixAvailable.isSemVerMajor === true`, then flip 3.13 → PENDING. Smaller change; ships 3.13 under the deferred-advisory branch (Run #24–#28 path).
+- Heads-up to operator: this is the 8th identical no-op tick in a row. The pile-up is itself the signal that human review is overdue — without path (a) or (b), every subsequent cron tick will land here again with the same QUEUE EMPTY exit.
+
 ## 2026-05-16 23:04:26 UTC — Run #36
 - Item: (none — queue scan)
 - Result: SKIPPED — QUEUE EMPTY
