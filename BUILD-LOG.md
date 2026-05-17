@@ -15,6 +15,22 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-17 23:04:33 UTC — Run #40
+- Item: (none — queue scan)
+- Result: SKIPPED — QUEUE EMPTY
+- Notes: WORK-QUEUE.md scan found 0 items with status `PENDING` (24 DONE, 1 FAILED, 1 BLOCKED). Per cron Step 3, writing the QUEUE EMPTY marker and exiting without attempting work. State unchanged from Runs #30–#39 — **11th consecutive QUEUE EMPTY run**; repo has been static (cron-wise) for ~54h, modulo the strategic-cron commit `8d26fd8` from 2026-05-17 14:06 UTC which added `PROPOSALS/2026-05-17-bible-pressure-test.md` (operator-facing strategic write; no WORK-QUEUE changes).
+- Queue snapshot:
+  - 24 items DONE (Phase 2.1–2.7, Phase 5.1, Phase 6.1–6.4, Phase 3.1–3.12).
+  - 1 item FAILED: 3.13 (Onboarding flow) — last attempted in Run #29 against the audit gate. `fixAvailable` for `next@14.2.13` is a dict pointing at `next@16.2.6` with `isSemVerMajor: true`; current FIXABLE_COUNT treats that dict as fixable and routes to AUDIT_FAILED. Implementation itself was clean (tsc passed in Run #29); only the audit gate blocks the deploy.
+  - 1 item BLOCKED: M.1 (Migrate to Next.js 15.x) — operator-only per HARD RULES; cron does not attempt.
+- Circuit breaker: not armed. Last two BUILD-LOG entries (Run #39, Run #38) are both SKIPPED — QUEUE EMPTY. Zero consecutive FAILEDs. Not relevant this run regardless (no work attempted).
+- No code or WORK-QUEUE.md changes — only BUILD-LOG.md updated. Live deploy remains commit fba1438 (Run #28 / item 3.12); Runs #29–#40 have not changed olokas.com.
+- Operator unblock paths (unchanged across Runs #29–#39):
+  - **(a)** Land M.1 in a focused operator session (DoD lives in WORK-QUEUE.md under M.1), then flip 3.13's status from FAILED back to PENDING. Long-term right answer — clears the 24 deferred Next.js advisories.
+  - **(b)** Patch the cron task file's FIXABLE_COUNT loop to skip entries where `fixAvailable.isSemVerMajor === true`, then flip 3.13 → PENDING. Smaller change; ships 3.13 under the deferred-advisory branch (Run #24–#28 path).
+  - **(c)** Add new PENDING items to WORK-QUEUE.md to unblock forward progress on something other than 3.13. The strategic proposal `PROPOSALS/2026-05-17-bible-pressure-test.md` (landed ~9h ago at commit `8d26fd8`) remains candidate raw material — still unconverted into WORK-QUEUE items as of this run.
+- Heads-up to operator: **11th consecutive QUEUE EMPTY tick.** The strategic proposal from 2026-05-17 has now sat for ~9h with no WORK-QUEUE.md entries derived from it. Without paths (a), (b), or (c), every subsequent cron tick will land here again with the same QUEUE EMPTY exit.
+
 ## 2026-05-17 19:05:36 UTC — Run #39
 - Item: (none — queue scan)
 - Result: SKIPPED — QUEUE EMPTY
