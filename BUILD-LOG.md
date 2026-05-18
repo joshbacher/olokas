@@ -27,6 +27,13 @@ Each entry is one autonomous build run. Newest at top.
   - **@supabase/realtime-js** (moderate) — depends on vulnerable ws (transitive carrier of GHSA-58qx-3vcg-4xpx).
   - **@supabase/supabase-js** (moderate) — depends on vulnerable @supabase/realtime-js (transitive).
   - **@supabase/ssr** (moderate) — depends on vulnerable @supabase/supabase-js (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
+- Post-push verification (commit 226558b, 121s after push):
+  - olokas.com/ → HTTP 200, edge cache age 0 → new deploy promoted ✓
+  - olokas.com/audit → HTTP 200, `<nav aria-label="Primary">` rendered
+  - olokas.com/pricing → HTTP 200, `<nav aria-label="Primary">` rendered
+  - olokas.com/blog → HTTP 200, `<nav aria-label="Primary">` rendered
+  - olokas.com/vs/semrush → HTTP 200, `<nav aria-label="Primary">` rendered
+  - All five marketing routes (DoD coverage: /pricing, /audit, /blog, /vs/{semrush,ahrefs,wordlift,seoptimer}) confirmed shipping the shared SiteNav from the new deploy.
 
 ## 2026-05-18 19:14:51 UTC — Run #42
 - Item: 3.13 (Onboarding flow — 4-step post-checkout)
