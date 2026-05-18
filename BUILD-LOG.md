@@ -15,6 +15,53 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-18 19:14:51 UTC — Run #42
+- Item: 3.13 (Onboarding flow — 4-step post-checkout)
+- Result: FAILED
+- Failure type: audit
+- Error (first 30 lines):
+```
+# npm audit report
+
+next  0.9.9 - 16.3.0-canary.5
+Severity: critical
+Next.js Allows a Denial of Service (DoS) with Server Actions - https://github.com/advisories/GHSA-7m27-7ghc-44w9
+Information exposure in Next.js dev server due to lack of origin verification - https://github.com/advisories/GHSA-3h52-269p-cp9r
+Next.js Affected by Cache Key Confusion for Image Optimization API Routes - https://github.com/advisories/GHSA-g5qg-72qw-gw5v
+Next.js authorization bypass vulnerability - https://github.com/advisories/GHSA-7gfc-8cq8-jh5f
+Next.js Improper Middleware Redirect Handling Leads to SSRF - https://github.com/advisories/GHSA-4342-x723-ch2f
+Next.js Content Injection Vulnerability for Image Optimization - https://github.com/advisories/GHSA-xv57-4mr9-wg8v
+Next.js Race Condition to Cache Poisoning - https://github.com/advisories/GHSA-qpjv-v59x-3qc4
+Next Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-mwv6-3258-q52c
+Next has a Denial of Service with Server Components - Incomplete Fix Follow-Up - https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+Next.js self-hosted applications vulnerable to DoS via Image Optimizer remotePatterns configuration - https://github.com/advisories/GHSA-9g9p-9gw9-jx7f
+Next.js HTTP request deserialization can lead to DoS when using insecure React Server Components - https://github.com/advisories/GHSA-h25m-26qc-wcjf
+Authorization Bypass in Next.js Middleware - https://github.com/advisories/GHSA-f82v-jwr5-mffw
+Next.js: HTTP request smuggling in rewrites - https://github.com/advisories/GHSA-ggv3-7p47-pfv8
+Next.js: Unbounded next/image disk cache growth can exhaust storage - https://github.com/advisories/GHSA-3x4c-7xq6-9pq8
+Next.js has a Denial of Service with Server Components - https://github.com/advisories/GHSA-q4gf-8mx6-v5v3
+Next.js Vulnerable to Denial of Service with Server Components - https://github.com/advisories/GHSA-8h8q-6873-q5fj
+Next.js's Middleware / Proxy redirects can be cache-poisoned - https://github.com/advisories/GHSA-3g8h-86w9-wvmq
+Next.js vulnerable to cross-site scripting in App Router applications using CSP nonces - https://github.com/advisories/GHSA-ffhc-5mcf-pf4q
+Next.js vulnerable to cache poisoning via collisions in React Server Component cache-busting - https://github.com/advisories/GHSA-vfv6-92ff-j949
+Next.js has cross-site scripting in beforeInteractive scripts with untrusted input - https://github.com/advisories/GHSA-gx5p-jg67-6x7h
+Next.js has a Denial of Service in the Image Optimization API - https://github.com/advisories/GHSA-h64f-5h5j-jqjh
+Next.js vulnerable to server-side request forgery in applications using WebSocket upgrades - https://github.com/advisories/GHSA-c4j6-fc7j-m34r
+Next.js vulnerable to cache poisoning in React Server Component responses - https://github.com/advisories/GHSA-wfc6-r584-vfw7
+Next.js has a Middleware / Proxy bypass in Pages Router applications using i18n - https://github.com/advisories/GHSA-36qx-fr4f-26g5
+Depends on vulnerable versions of postcss
+fix available via `npm audit fix --force`
+```
+- Notes: `npm audit --audit-level=high --omit=dev --json` reports **2 vulnerabilities** (`next` critical, `postcss` moderate). Both list `fixAvailable` as `{"name":"next","version":"16.2.6","isSemVerMajor":true}`. The cron's FIXABLE_COUNT loop counts that dict-shaped value as fixable (it's not in the `(False, None, {})` tuple), so the audit gate routes to AUDIT_FAILED. Per the HARD RULES we cannot land a major dep bump from a single ~30-60 minute cron run — that's the M.1 BLOCKED operator-only path.
+- Implementation status: code complete and tsc-clean. `npx tsc --noEmit` ran with **zero errors** against the new files (`app/app/onboarding/{page.tsx, actions.ts}`, `components/onboarding/{onboarding-flow.tsx, progress-indicator.tsx, step-confirm-domain.tsx, step-pick-queries.tsx, step-add-competitors.tsx, step-schedule-scan.tsx}`, and the small `?from=onboarding` banner addition in `app/app/dashboard/page.tsx`). The audit gate is the only block. Same failure mode as Runs #29-pre-#41 path; queue state restored from PENDING in commit `e3d0e93` without fixing the underlying gate or landing M.1.
+- Files NOT pushed (stashed per FAIL path): all 7 new files + 2 modifications.
+- Operator unblock paths (unchanged):
+  - **(a)** Land M.1 in a focused operator session (DoD lives in WORK-QUEUE.md under M.1), then flip 3.13 `FAILED → PENDING`. Long-term right answer — clears the 24 deferred Next.js advisories.
+  - **(b)** Patch the cron task file's FIXABLE_COUNT loop to skip entries where `fixAvailable.isSemVerMajor === true`. Then flip 3.13 `FAILED → PENDING`. Smaller change; ships 3.13 under the deferred-advisory branch (Runs #24–#28 path). Suggested patch (Python in this task file): `fixable = sum(1 for v in vulns.values() if v.get('fixAvailable') not in (False, None, {}) and not (isinstance(v.get('fixAvailable'), dict) and v['fixAvailable'].get('isSemVerMajor')))`.
+- Heads-up: 4.0–4.4 are also PENDING in WORK-QUEUE.md after the operator's commit `e3d0e93`, but they sit below 3.13 in queue order. After this run, 3.13 is back to FAILED so the next cron tick will pick up **4.0 (Marketing nav)** automatically — forward progress resumes on the next run regardless of which unblock path (a) or (b) the operator chooses for 3.13.
+
+---
+
 ## 2026-05-18 03:04:29 UTC — Run #41
 - Item: (none — queue scan)
 - Result: SKIPPED — QUEUE EMPTY
