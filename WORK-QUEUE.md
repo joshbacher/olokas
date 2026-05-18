@@ -302,7 +302,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Real subscription lifecycle is implemented. Build clean. (E2E test requires real Stripe webhook events.)
 
 ### 3.13 — Onboarding flow (4-step post-checkout)
-- **Status:** FAILED  *(Last attempt: 2026-05-14 — audit gate; see Run #29)*
+- **Status:** PENDING
 - **Files:** `app/app/onboarding/page.tsx`, `app/app/onboarding/actions.ts`, `components/onboarding/*`
 - **Spec:**
   - 4 steps as separate components, switched via local state (no URL routing per step):
@@ -341,3 +341,84 @@ These items assume the Supabase migration has been run (it has — see commit no
   - Deploy promotes successfully on Vercel
 - **Estimated effort:** one focused operator session with adequate disk; not a single cron run.
 - **Risk if deferred:** the high-severity advisories remain present. Notable ones include cross-site scripting in App Router with CSP nonces (GHSA-ffhc-5mcf-pf4q), SSRF via WebSocket upgrades (GHSA-c4j6-fc7j-m34r), cache poisoning in RSC responses (GHSA-wfc6-r584-vfw7), and Middleware/Proxy bypass (GHSA-4342-x723-ch2f). Most require specific exploit conditions that don't apply to Olokas's current surface (no Pages Router, no untrusted CSP-nonce-using scripts, no WebSocket upgrades), but the threat surface grows as Phase 3+ ships more endpoints.
+
+---
+
+## Phase 4 readiness — items the cron CAN ship without external accounts
+
+### 4.0 — Marketing nav across all marketing pages
+- **Status:** PENDING
+- **Files:** new `components/site-nav.tsx`; integrate into `app/(marketing)/audit/page.tsx`, `app/(marketing)/pricing/page.tsx`, `app/(marketing)/blog/page.tsx`, `app/(marketing)/blog/[slug]/page.tsx`, `app/(marketing)/vs/[competitor]/page.tsx`. The home page already has a Sign-in link beside the BrandMark — extract that pattern into a reusable component.
+- **Spec:**
+  - `SiteNav` is a server component: BrandMark on the left (links to `/`), simple horizontal nav center-right with `/pricing`, `/audit`, `/blog`, and a `Sign in` link rightmost. All `text-sm font-medium`, muted-foreground default with hover transition to foreground. On `<640px` viewport, collapse the center nav and keep only BrandMark + Sign in.
+  - Update the home page (`app/(marketing)/page.tsx`) to import `SiteNav` so the home page header consolidates with the rest of the marketing surface.
+  - Aria: `<nav aria-label="Primary">`, current-page state on active link via the `x-pathname` request header (same pattern the /app/* layout uses, see `app/app/layout.tsx`).
+- **DoD:** All five marketing routes show the same nav; current-page styling lights up correctly; build + tsc clean; live verification shows /pricing, /audit, /blog, /vs/semrush, /vs/ahrefs, /vs/wordlift, /vs/seoptimer all returning 200 with the new nav.
+
+### 4.1 — Privacy Policy + Terms of Service pages
+- **Status:** PENDING
+- **Files:** `app/(marketing)/privacy/page.tsx`, `app/(marketing)/terms/page.tsx`, footer link updates in `components/site-footer.tsx`
+- **Spec:**
+  - Two static server-component pages with reasonable boilerplate content (not legal-advice quality; clearly marked as placeholder copy operator must review with counsel before launch).
+  - Privacy: GDPR/CCPA-style sections covering data collected (email, domain, queries, scan results), how it's used, third parties (Supabase, Stripe, Resend, SerpAPI, Perplexity, Anthropic), data deletion request flow.
+  - Terms: standard SaaS boilerplate — service description, payment terms, acceptable use, termination, disclaimer, governing law placeholder.
+  - Both pages use the new `SiteNav` from 4.0.
+  - Footer gets links to both alongside the existing email link.
+  - Add canonical + noindex:false metadata.
+- **DoD:** Both pages render at HTTP 200, footer links to them, build clean. Operator reviews copy and updates if needed.
+
+### 4.2 — Custom 404 / not-found page
+- **Status:** PENDING
+- **Files:** `app/not-found.tsx`
+- **Spec:**
+  - Replace Next's default 404 with a branded page using `SiteNav` (from 4.0).
+  - Headline "Page not found" with mildly dry copy ("That link goes somewhere we haven't built. Or it never existed. Hard to say."). Two CTAs: home link, audit link. Brand mark in the middle.
+  - Match the home page's visual density.
+- **DoD:** `next build` recognizes the new not-found file (visible in route table); /any-random-path returns 404 with the new page; build clean.
+
+### 4.3 — First two real blog posts (1,500+ words each)
+- **Status:** PENDING
+- **Files:** `content/posts/what-is-geo.mdx`, `content/posts/how-ai-search-picks-citations.mdx`
+- **Spec:**
+  - Post 1: "What is GEO? (Generative Engine Optimization in 2026)" — definitional, 1,500–2,000 words. Target keyword: "generative engine optimization". Audience: SMB owners and marketing managers who've heard the term but don't have working definitions yet. Cover: what GEO is, how it differs from SEO, the four engines that matter, what a "GEO score" means in practice, 3 quick wins anyone can do today.
+  - Post 2: "How AI Search Engines Pick What to Cite" — technical-but-accessible, 1,500–2,000 words. Target keyword: "how chatgpt picks sources" or "AI search citations". Cover: how ChatGPT/Perplexity/AI Overviews/Claude select citations differently, the role of structured data (JSON-LD), why some sites get cited and others don't, what you can ship in 30 minutes to be more citable.
+  - Frontmatter for each: title, slug, excerpt, publishedAt (today's date in UTC), author "Olokas", tags ["GEO", "AI search"] (varied), coverImage omitted (will fall back to og-default).
+  - Voice: matches bible §4 — direct, mildly dry, never breathless. No "Revolutionize your AI presence!" energy.
+- **DoD:** Both posts render at `/blog/what-is-geo` and `/blog/how-ai-search-picks-citations`. `/blog` index lists all 3 posts (with the original `welcome` post). Sitemap.xml includes them. tsc + next build clean.
+
+### 4.4 — GitHub Actions cron workflows (wire up the existing /api/cron/* routes)
+- **Status:** PENDING
+- **Files:** `.github/workflows/dispatch-scans.yml`, `.github/workflows/recover-stuck-jobs.yml`, `.github/workflows/daily-rollup.yml`, `.github/workflows/payment-recovery.yml`, `.github/workflows/generate-reports.yml`, `.github/workflows/send-reports.yml`
+- **Spec:**
+  - Each workflow is a separate YAML file with `on.schedule` matching the cadence documented in `code-scaffold.md` cron table (dispatch-scans every 15 min, recover-stuck-jobs every 30 min, daily-rollup daily 23:55 UTC, payment-recovery daily 9am UTC, generate-reports Mondays 5am UTC, send-reports Mondays 6am UTC).
+  - Each job is a single step: `curl -s -X POST -H "Authorization: Bearer $CRON_SECRET" "https://olokas.com/api/cron/<name>"` with a request timeout and failure on non-2xx response.
+  - `CRON_SECRET` comes from GitHub Actions secrets (operator sets this after the cron prompt confirms the workflows file exists — see operator todo at bottom of queue).
+  - Each workflow includes a `workflow_dispatch:` trigger so the operator can run manually for testing.
+  - Concurrency control: `concurrency: { group: cron-<name>, cancel-in-progress: false }` so overlapping invocations don't pile up.
+- **DoD:** Six workflow files exist and pass `actionlint` if available. The workflows are documented (a `.github/workflows/README.md` lists each and what it does). Operator action item: add `CRON_SECRET` to GitHub Actions secrets — flagged in the commit body so operator notices.
+
+---
+
+## Operator-action items (the cron does not attempt these — they need accounts or external decisions)
+
+### O.1 — Verify Resend domain and switch Supabase auth emails to use Resend
+- **Status:** BLOCKED  *(operator unblocks by completing Resend domain verification)*
+- **Why this isn't autonomous:** Resend domain verification requires adding DNS records to olokas.com's DNS provider (Cloudflare) and waiting for verification, then updating Supabase Auth → SMTP settings with the Resend credentials. None of which the cron can do.
+- **What to do:**
+  1. Resend dashboard → Domains → Add → enter `olokas.com` → copy the SPF, DKIM, and DMARC records.
+  2. Cloudflare DNS for olokas.com → add the three records exactly as Resend shows them.
+  3. Wait 5–60 minutes for propagation, click "Verify" in Resend.
+  4. Once verified, in Supabase → Authentication → Email Templates → SMTP Settings, switch from "Supabase managed" to custom SMTP. Use Resend's SMTP endpoint (`smtp.resend.com:465`, your Resend API key as the password, `resend` as the username).
+  5. Customize the Supabase auth email templates (Confirm signup, Magic link, Reset password) with branded Olokas copy.
+- **DoD:** Sending a test magic link from olokas.com results in an email from `hello@olokas.com` (not noreply@mail.app.supabase.io), rendered with the new branded template.
+
+### O.2 — Phase 4 prep: gather API credentials for real scan engines
+- **Status:** BLOCKED  *(operator unblocks by creating accounts and saving credentials)*
+- **Why this isn't autonomous:** Each provider requires account creation, sometimes billing setup, sometimes business verification. The cron cannot do any of these.
+- **What to do, save credentials in `.secrets/`:**
+  1. **Anthropic API key** — console.anthropic.com → API keys → create one. Save as `.secrets/anthropic-api-key.txt`. Set a $50/mo spend cap to start.
+  2. **SerpAPI** — serpapi.com → free tier (250 searches/mo) for dev; upgrade to a paid plan when launching. Save as `.secrets/serpapi-key.txt`.
+  3. **Perplexity API** — perplexity.ai/settings/api → create key. Save as `.secrets/perplexity-key.txt`.
+  4. **Hetzner Cloud account** — hetzner.com/cloud → create account. Do NOT provision the CPX21 VPS yet; we'll do that during Phase 4 deployment.
+  5. Add all corresponding env vars to Vercel (Settings → Environment Variables): `ANTHROPIC_API_KEY`, `SERPAPI_KEY`, `PERPLEXITY_API_KEY`. Production environment only for these.
+- **DoD:** All three API key files exist in `.secrets/`. Vercel env vars set. A `phase-4-ready: yes` marker can then be added by the operator to unblock the Phase 4 queue items (which will land in a follow-up planning session).
