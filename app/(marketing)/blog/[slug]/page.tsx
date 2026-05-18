@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { BrandMark } from "@/components/brand-mark";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 import {
   formatPublishedDate,
   getAllPosts,
@@ -155,9 +155,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
 
-      <header className="mb-[6vh]">
-        <BrandMark />
-      </header>
+      <SiteNav className="mb-[6vh]" />
 
       <p className="mb-6 text-[13px]">
         <Link

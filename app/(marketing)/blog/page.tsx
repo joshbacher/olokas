@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BrandMark } from "@/components/brand-mark";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 import {
   formatPublishedDate,
   getAllPosts,
@@ -62,9 +62,7 @@ export default async function BlogIndexPage({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-[720px] flex-col px-7 pb-[6vh] pt-[8vh]">
-      <header className="mb-[6vh]">
-        <BrandMark />
-      </header>
+      <SiteNav className="mb-[6vh]" />
 
       <section>
         <h1 className="mb-3 text-3xl font-semibold tracking-tight">Blog</h1>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { BrandMark } from "@/components/brand-mark";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 import { PricingTiers } from "@/components/pricing-tiers";
 import { PRICING_TIERS, type PricingTier } from "@/lib/pricing/tiers";
 
@@ -135,9 +135,7 @@ export default function PricingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <header className="mb-[6vh]">
-        <BrandMark />
-      </header>
+      <SiteNav className="mb-[6vh]" />
 
       <section className="mb-12 max-w-[640px]">
         <h1 className="mb-4 text-[clamp(28px,5vw,40px)] font-semibold leading-[1.15] tracking-tight">

@@ -15,6 +15,19 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-18 23:11:36 UTC — Run #43
+- Item: 4.0 (Marketing nav across all marketing pages)
+- Result: SUCCESS
+- Files changed: 9
+- Notes: New `components/site-nav.tsx` server component (BrandMark left, /pricing /audit /blog center, Sign in right; collapses below sm to BrandMark + Sign in only). Active-link state derived from the `x-pathname` request header that root middleware already forwards — same pattern `app/app/layout.tsx` uses. `<nav aria-label="Primary">` with `aria-current="page"` on the matched link. Integrated into all five marketing routes plus the home page header; home's bespoke BrandMark + Sign-in block deleted in favour of the shared component. tsc clean; `next build` shows /, /audit, /pricing, /blog, /blog/welcome, and /vs/{ahrefs,semrush,seoptimer,wordlift} all building (six dynamic + three SSG + one SSG-with-children). Live verification follows in the post-push step below.
+- Deferred advisories: `npm audit --omit=dev` reports 6 high/critical findings, ALL marked `fixAvailable: false`. No fix to apply; per the cron's deferred-advisory branch this is AUDIT_DEFERRED, not AUDIT_FAILED.
+  - **next** (critical) — same 24 advisories tracked in M.1 (DoS in Server Actions, SSRF in Middleware, cache poisoning in RSC, XSS in App Router with CSP nonces, etc.). Cleared by the M.1 operator-only migration to Next.js 15.x. Notable change from Run #42 baseline: npm's advisory database has shifted its `fixAvailable` shape from a dict pointing at `next@16.2.6` (which the FIXABLE_COUNT loop counted as fixable, triggering AUDIT_FAILED loops) to `false` (now correctly routed to AUDIT_DEFERRED). Operator unblock path (b) from Runs #29–#42 — patching the FIXABLE_COUNT loop — is no longer required.
+  - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when next is bumped.
+  - **ws** (moderate) — GHSA-58qx-3vcg-4xpx (uninitialized memory disclosure). New since Run #42 baseline. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Needs an upstream `@supabase/ssr` release that bumps the realtime-js chain off vulnerable ws versions; nothing the cron can land in a single run.
+  - **@supabase/realtime-js** (moderate) — depends on vulnerable ws (transitive carrier of GHSA-58qx-3vcg-4xpx).
+  - **@supabase/supabase-js** (moderate) — depends on vulnerable @supabase/realtime-js (transitive).
+  - **@supabase/ssr** (moderate) — depends on vulnerable @supabase/supabase-js (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
+
 ## 2026-05-18 19:14:51 UTC — Run #42
 - Item: 3.13 (Onboarding flow — 4-step post-checkout)
 - Result: FAILED

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { BrandMark } from "@/components/brand-mark";
 import { EmailSignup } from "@/components/email-signup";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 
 // Phase 6.4 — home metadata. The root layout (`app/layout.tsx`) already
 // carries default openGraph/twitter values that apply when a route doesn't
@@ -44,15 +44,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-[620px] flex-col px-7 pb-[6vh] pt-[14vh] sm:px-7">
-      <header className="mb-[8vh] flex items-center justify-between">
-        <BrandMark />
-        <a
-          href="/login"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Sign in
-        </a>
-      </header>
+      <SiteNav className="mb-[8vh]" />
 
       <section>
         <h1 className="mb-6 text-[clamp(28px,5vw,40px)] font-semibold leading-[1.15] tracking-tight">

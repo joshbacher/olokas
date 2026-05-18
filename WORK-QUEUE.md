@@ -347,7 +347,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 ## Phase 4 readiness — items the cron CAN ship without external accounts
 
 ### 4.0 — Marketing nav across all marketing pages
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** new `components/site-nav.tsx`; integrate into `app/(marketing)/audit/page.tsx`, `app/(marketing)/pricing/page.tsx`, `app/(marketing)/blog/page.tsx`, `app/(marketing)/blog/[slug]/page.tsx`, `app/(marketing)/vs/[competitor]/page.tsx`. The home page already has a Sign-in link beside the BrandMark — extract that pattern into a reusable component.
 - **Spec:**
   - `SiteNav` is a server component: BrandMark on the left (links to `/`), simple horizontal nav center-right with `/pricing`, `/audit`, `/blog`, and a `Sign in` link rightmost. All `text-sm font-medium`, muted-foreground default with hover transition to foreground. On `<640px` viewport, collapse the center nav and keep only BrandMark + Sign in.

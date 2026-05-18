@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { AuditForm } from "@/components/audit-form";
-import { BrandMark } from "@/components/brand-mark";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 
 // Phase 6.4 — audit landing metadata. Per-audit pages (`/audit/[auditId]`)
 // already carry their own metadata + share-friendly OG image. The landing
@@ -40,9 +40,7 @@ export const metadata: Metadata = {
 export default function AuditPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-[720px] flex-col px-7 pb-[6vh] pt-[8vh]">
-      <header className="mb-[6vh]">
-        <BrandMark />
-      </header>
+      <SiteNav className="mb-[6vh]" />
 
       <section className="mb-8">
         <h1 className="mb-3 text-3xl font-semibold tracking-tight">

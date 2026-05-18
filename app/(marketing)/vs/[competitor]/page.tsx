@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { BrandMark } from "@/components/brand-mark";
 import { ComparisonTable } from "@/components/comparison-table";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteNav } from "@/components/site-nav";
 import {
   formatUpdatedDate,
   getAllComparisons,
@@ -143,9 +143,7 @@ export default async function VsCompetitorPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
 
-      <header className="mb-[6vh]">
-        <BrandMark />
-      </header>
+      <SiteNav className="mb-[6vh]" />
 
       <p className="mb-6 text-[13px]">
         <Link
