@@ -1,0 +1,70 @@
+---
+title: "What is GEO? Generative Engine Optimization in 2026"
+slug: "what-is-geo"
+excerpt: "A working definition of generative engine optimization — what it is, how it differs from SEO, which engines matter, what a GEO score measures, and three things any site can ship today."
+publishedAt: "2026-05-19"
+author: "Olokas"
+tags: ["geo", "ai-search", "fundamentals"]
+---
+
+"Generative engine optimization" is one of those phrases that started showing up in marketing decks faster than it acquired a useful definition. This post is a definition. If you have heard the term, run searches that confirm your brand barely appears in ChatGPT or Perplexity, and want a working understanding of what to do about it, read on.
+
+## The shift
+
+Search used to mean a list of links. You typed a query, ten results came back, you clicked one, you arrived on a page. SEO existed because there were ten slots and brands wanted theirs to be one of them.
+
+The retrieval layer in front of customers has changed shape. A growing fraction of high-intent commercial queries no longer produces a list. It produces a paragraph. The paragraph is written in real time by a language model that, depending on the engine, may have fetched a handful of pages from the open web first, may be working entirely from its training data, or may be doing both. The user reads the paragraph. They either click a citation, ask a follow-up, or close the tab. They do not scroll past the paragraph to look at link two through ten.
+
+If your business is named in that paragraph, you are part of the conversation. If a competitor is named and you are not, the customer's mental model now has a competitor in it and not you. The shift is real, and the bigger commercial categories — software, financial services, B2B services, travel — already see double-digit percentages of buyer research happening this way. Generative engine optimization is the practical work of being visible in those generated answers.
+
+## How GEO differs from SEO
+
+The two are related but not the same.
+
+SEO optimizes for a ranking algorithm that selects ten URLs to show the user. The output is a list. The signals are well understood after twenty-five years of work on them: relevance, authority, freshness, technical quality, link graph, click behavior.
+
+GEO optimizes for a model's decision about which sources to retrieve, which retrieved excerpts to use, and how to phrase the answer it generates. The output is a paragraph plus a few citations. The signals overlap with SEO — relevance and authority still matter — but several of them are new. The model reads excerpts, not whole pages, so where the answer sits on the page matters more than it used to. The model has its own opinion about source credibility separate from whatever ranking algorithm the underlying search index uses. The model can paraphrase your content without citing you, which is a problem if you want the click.
+
+In practice, a site that has done good SEO work already starts from a reasonable place. The remaining work is GEO-specific. You will need to think about how an excerpt-reading model sees your pages, not just how a crawler indexes them.
+
+## The four engines that matter
+
+There are many AI search products in the market. Four account for most of what an actual buyer encounters today.
+
+**ChatGPT** is the largest by user base. Depending on the user's plan and the query, it may run with web search or without. With web search enabled, it issues queries against Bing's index, fetches the top hits, and feeds excerpts into the model along with the question. Citations are inline and clickable when present, but ChatGPT often answers from training data without surfacing any sources at all.
+
+**Perplexity** is the most explicit about its retrieval. Every answer comes with numbered citations and a clickable source list. It fetches more sources than ChatGPT on average and cites more of them. It has its own crawler and ranker layered on top of public web search.
+
+**Google AI Overviews** are the boxed paragraphs that appear above traditional search results on some queries. They are produced by Gemini-family models drawing from Google's main index. Overviews don't appear on every query — Google withholds them on commercial intent, fast-moving news, and low-confidence retrieval. When they appear, they cite three to seven sources with thumbnail-style links.
+
+**Claude** has web search through claude.ai and the API. It issues queries, fetches results, decides what to cite, and tends to be more conservative about making factual claims when sources disagree. Citation behavior is inline and clickable.
+
+These four behave differently enough from each other that there is no point averaging them into a single number. A practical visibility program watches each one separately.
+
+## What a GEO score actually measures
+
+A GEO score is a 0-to-100 composite. Different vendors weight the components differently; the underlying observables are similar.
+
+You start with a query — something a real customer might plausibly type. You run that query against each engine and capture the answer plus its citations. For your target domain, you record three independent things: did the answer name the domain or brand, did the answer cite a page on the domain, and what other domains showed up in the answer.
+
+The composite score weights mention, citation, and citation position together. A first-paragraph citation is worth more than a footnote-position citation. A mention without a citation is worth more than nothing but less than a cited mention. The exact weights matter less than that the weights are consistent week over week, so the slope of the line is meaningful.
+
+You will see a per-engine breakdown that is more useful day-to-day than the composite. The composite is what to glance at; the breakdown is what to act on. A site that scores 50 on Perplexity, 20 on ChatGPT, and 0 on Google AI Overviews has very different problems than a site that scores 25 everywhere.
+
+A score on a single scan tells you little. The same query asked twice produces slightly different answers because of model temperature, shifting web indexes, and ranker updates. The numbers worth trusting are weekly medians watched over four to six weeks. A query you have monitored for a week is noise. A query you have monitored for a month is signal.
+
+## Three things any site can ship today
+
+Most of the levers that move GEO scores are the same ones that move SEO scores: clear writing, structured data, fast pages, real authority signals. Three of them, in particular, are within reach for a small team and move the numbers measurably.
+
+**Lead with the answer.** The retrieval models read short excerpts of your pages, not the full thing. If a customer would ask "what is X" or "how does X compare to Y", the page that answers that question should contain a clear, direct answer in the first two hundred words. Burying the answer beneath three paragraphs of brand copy is the most common reason a relevant page does not get cited. Look at your top ten pages right now. Find the question each one answers. Move the answer up.
+
+**Mark up the obvious entities.** JSON-LD structured data is not a magic boost, but it lowers the cost for a retrieval model to identify what your page is about. At minimum, every page should have `Organization` schema for the site, `Article` for any blog or guide content, `Product` or `Service` for commercial pages, and `FAQPage` where appropriate. The schema must match the visible content — fabricated markup gets caught and demoted. There are good free validators; use them.
+
+**Get cited by sources the engines already trust.** A page on your own site claiming you are the leader in your category is worth almost nothing to a retrieval model. A page on a trade publication, a well-known blog, or a comparison roundup that names you alongside competitors is worth a lot. This is slow work, and a tool like Olokas does not generate those mentions for you. What we do is tell you when they show up, so you know which earned-media work is moving the engines and which is not.
+
+## What to expect over the first month
+
+If you start measuring today, the first useful read is about four weeks in. By then you will have enough weekly data points to see a slope rather than a snapshot. You will probably find one engine treats you well, one ignores you, and the other two are mixed. That distribution is the starting point for the next decision.
+
+A reasonable first-month plan is to pick five to ten queries that real prospects might type, watch them weekly across all four engines, drop the queries that are too noisy to be useful, and start landing the three quick wins above on whichever pages are closest to being cited. By month two, you will have a baseline against which every change to the site, every press mention, every product launch can be evaluated. That is the entire point of treating GEO as its own measurable thing.

@@ -1,0 +1,80 @@
+---
+title: "How AI Search Engines Pick What to Cite"
+slug: "how-ai-search-picks-citations"
+excerpt: "A walkthrough of how ChatGPT, Perplexity, Google AI Overviews, and Claude each decide which sources to cite — what overlaps, what differs, what schema and on-page choices move the needle, and what you can ship in thirty minutes."
+publishedAt: "2026-05-19"
+author: "Olokas"
+tags: ["ai-search", "citations", "structured-data"]
+---
+
+When ChatGPT answers a question with a citation beside a sentence, something specific happened. The model ran a search, picked a small number of results, fetched their content, decided which excerpts were useful enough to include in its context window, and then generated a sentence the user reads as backed up by source [3]. The same broad shape applies to Perplexity, Google AI Overviews, and Claude — but the specific signals each one prioritizes differ enough that "be more citable" is not a single project.
+
+This post walks through how each of the four engines decides what to cite, what signals overlap, what's specific to each, and what a small team can ship in roughly thirty minutes to be more citable across all of them.
+
+## The common pipeline
+
+All four engines go through a version of the same four steps when they cite the web.
+
+The first step is **query rewriting**. The user's question gets turned into one or more search queries the underlying index can handle. "Which CRM is best for a 12-person sales team" might become three queries: "best CRM small team", "CRM for 12 person sales team", "CRM under 50 users". Each rewrite hits the index independently. Anything you publish has to be findable for the rewrite, not the original question.
+
+The second step is **retrieval and ranking**. The index returns candidates. A reranker — sometimes the same model, sometimes a smaller specialized one — scores each result for relevance to the rewritten query. The top results pass through.
+
+The third step is **excerpt extraction**. The engine fetches each top result, pulls out a relevant chunk of text — typically the first useful paragraph after the headline, or a chunk matched against a snippet ranker — and feeds that into the language model along with the original question.
+
+The fourth step is **answer generation with citation attachment**. The model writes an answer. As it generates, it tags spans of the answer with the source or sources those spans came from. The user sees those tags as the inline citations.
+
+A citation requires you to survive every step. Get filtered at retrieval, never cited. Get retrieved but your excerpt buries the answer, never cited. Get cited but in the wrong shape, the user does not click. The work of being citable is the work of surviving every step in this pipeline.
+
+## ChatGPT
+
+ChatGPT's web search runs on Bing as the underlying index. That matters more than it sounds. A site that ranks well on Bing has a head start. A site that is invisible on Bing — and many small sites are, because they have invested entirely in Google — starts the citation process eliminated.
+
+ChatGPT also uses training data when web search is disabled or when the model's confidence on the live retrieval is low. This is the source of citations-without-URLs and the occasional confidently wrong answer. There is no "optimize for training data inclusion" lever; the training data is what it is. What you can influence is the live web retrieval path.
+
+In practice, ChatGPT cites fewer sources per answer than Perplexity. Two to four is typical. It tends to prefer pages with the answer near the top, with clear headers, and with high authority on the broad topic. It is less impressed by structured data than Google AI Overviews. A clean H1 and a direct opening paragraph go further than schema markup.
+
+## Perplexity
+
+Perplexity is the most explicit and the most generous with citations. A typical answer cites six to twelve sources. It runs its own crawler and its own reranker on top of public search; the ranking decisions are not Bing or Google's decisions.
+
+Perplexity weights independent third-party sources heavily. A roundup on a trade publication that mentions you alongside three competitors is worth more to Perplexity than a self-described comparison page on your own site. This is a defensible design choice — third-party mentions are harder to fake than self-claims — and it is one of the more durable patterns we see in the data.
+
+For a small site, the most productive Perplexity work is usually not on-page. It is earned-media work. Whether a comparison post on someone else's blog names you, whether an industry roundup includes you, whether a podcast transcription mentions you — these move Perplexity scores more than another schema tag will. On-page optimizations help once Perplexity already considers your site relevant. They do not get you in the door.
+
+## Google AI Overviews
+
+Google AI Overviews are the most schema-friendly of the four. The model that generates them runs on top of Google's main index, and Google's main index has spent twenty years learning how to read structured data. Pages with rich, accurate JSON-LD markup are more readable to the system that decides what to cite.
+
+That said, Overviews are also the most withheld. Google does not show them on commercial-intent queries with strong product or service intent, on fast-moving news, or on queries where the retrieval has low confidence. A query that gets a perfect Overview today may not get one tomorrow.
+
+If the goal is Overview citations, the practical move is to identify the queries that consistently produce Overviews in your category and write content specifically for those. Look at the actual SERP for each candidate query. If there is an Overview today, the citations in that Overview are your competitive set. Look at what they did. Match it.
+
+## Claude
+
+Claude's web search runs through Anthropic-built retrieval. It tends to be more conservative than ChatGPT or Perplexity: when sources disagree, Claude is more likely to acknowledge the disagreement than to pick a winner. Citation behavior is inline and clickable.
+
+The most distinctive thing about Claude's citation behavior is how much weight it puts on internal consistency. A page that contradicts itself, or that contradicts other pages on the same site, gets cited less. A page with a clear thesis stated up front and supported consistently throughout gets cited more. The signal is the kind of thing humans evaluate: does this source seem to know what it is talking about, or does it look like SEO copy stitched together from a template.
+
+Practically, the Claude lever is editorial quality. Pages that read like they were written by someone who understands the topic perform measurably better than pages that read like content marketing. This is not a controversial claim; the surprising part is how cleanly it shows up in the data.
+
+## What overlaps
+
+Three signals show up across every engine.
+
+The first is **answer location on the page**. Every engine reads excerpts, and every engine extracts those excerpts from near the top of the page. A page where the answer is in the first two hundred words is more citable than a page where the answer is buried below three paragraphs of intro copy. This is the single most reliable thing you can change.
+
+The second is **clarity of factual claims**. Engines reward sentences that say "X is Y for these reasons" more than they reward sentences that hedge through five qualifying clauses. Direct claims that are also true and verifiable are worth a lot.
+
+The third is **authority**. All four engines weight signals of authority, just with different inputs. ChatGPT and Google rely heavily on the underlying search index's authority signals. Perplexity relies more on the link graph and on third-party mention density. Claude relies more on editorial consistency. The shape of "authority" differs; the requirement for some version of it is universal.
+
+## What you can ship in thirty minutes
+
+Three specific things you can do this afternoon that move the citation signal across all four engines.
+
+First, **audit your top ten pages for answer location**. Open each page. Read the first three paragraphs. If they do not contain a clear, direct answer to the question the page is meant to address, rewrite the opener. The fix is usually mechanical: move the answer up, push the brand context down.
+
+Second, **add JSON-LD to the pages that lack it**. At minimum, `Organization` on the site root, `Article` on every long-form post, `Product` or `Service` on commercial pages, and `FAQPage` where applicable. Use Google's Rich Results Test to verify each page parses. Fabricated markup gets caught and hurts you, so be honest about what the page actually contains.
+
+Third, **add internal cross-links between related pages**. The retrieval models follow internal link structure to map a site's topical scope. A blog post that links to the product page that links to the comparison page is a more coherent topical footprint than the same three pages with no links between them. This is mechanical, takes fifteen minutes for most sites, and shows up in scans within a few weeks.
+
+These three changes do not require new content, new tooling, or budget. They require an editor with thirty minutes and a willingness to look at the site the way a model reads it: from the top of the page, across topical clusters, with structured data as a quiet helper. Most of the citation gains we see in customer data come from doing these three things consistently before doing anything more ambitious.

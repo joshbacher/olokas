@@ -15,6 +15,19 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-19 19:17:58 UTC — Run #46
+- Item: 4.3 (First two real blog posts — 1,500+ words each)
+- Result: SUCCESS
+- Files changed: 4 (2 new content files, 2 modified meta files)
+- Notes: New blog posts `content/posts/what-is-geo.mdx` (1,517 words) and `content/posts/how-ai-search-picks-citations.mdx` (1,584 words), both within the spec's 1,500–2,000 word range and matching the welcome.mdx voice (direct, mildly dry, no breathless filler). Frontmatter on both: `publishedAt: 2026-05-19`, `author: "Olokas"`, `coverImage` omitted (falls back to og-default per the route's metadata logic). Tags varied per the spec — `["geo", "ai-search", "fundamentals"]` on `what-is-geo` (target keyword "generative engine optimization", SMB-facing definitional piece covering the SEO→GEO shift, the four engines, what a GEO score measures, and three thirty-minute wins), `["ai-search", "citations", "structured-data"]` on `how-ai-search-picks-citations` (target keyword "how chatgpt picks sources" / "AI search citations", walks the common retrieval pipeline then breaks down per-engine differences across ChatGPT/Perplexity/Google AIO/Claude with three thirty-minute on-page actions). `getAllPosts()` in `lib/posts.ts` discovers both automatically via the existing `content/posts/*.mdx` glob — no code changes needed. `next build` route table confirms both new SSG entries (`/blog/what-is-geo` and `/blog/how-ai-search-picks-citations` under the `● /blog/[slug]` group, alongside the original `/blog/welcome`); the dynamic-rendered `/sitemap.xml` and `/blog` index both pull from `getAllPosts()` so the two new posts appear in the sitemap and the index automatically on the next deploy. tsc clean in 4s; `next build` clean in 17s across 33 routes. Build-environment workaround unchanged from Runs #44/#45: `/sessions` 100% full and `/` at 100% so `node_modules` was symlinked from the leftover `/tmp/olokas-repo` clone (same package versions, same lockfile — verified `diff package-lock.json` identical), with `NEXT_TEST_NATIVE_DIR=/tmp/olokas-build-1779145487/repo/node_modules/@next/swc-linux-x64-gnu` pointed at the prebuilt native binary from an even older clone. Purely a sandbox workaround; nothing committed beyond the two MDX files plus this log entry and the WORK-QUEUE status flip.
+- Deferred advisories: `npm audit --omit=dev` reports 6 high/critical findings, ALL marked `fixAvailable: false`. Unchanged from Runs #43/#44/#45 baseline (no dep changes this run). Per the cron's deferred-advisory branch this is AUDIT_DEFERRED, not AUDIT_FAILED.
+  - **next** (critical) — same Next.js 14.2.13 advisories tracked in M.1 (DoS in Server Actions, SSRF in Middleware, cache poisoning in RSC, XSS in App Router with CSP nonces, etc.). Cleared by the M.1 operator-only migration to Next.js 15.x.
+  - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
+  - **ws** (moderate) — GHSA-58qx-3vcg-4xpx. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Needs an upstream `@supabase/ssr` release that bumps the realtime-js chain off vulnerable `ws` versions; nothing the cron can land in a single run.
+  - **@supabase/realtime-js** (moderate) — depends on vulnerable `ws` (transitive carrier of GHSA-58qx-3vcg-4xpx).
+  - **@supabase/supabase-js** (moderate) — depends on vulnerable `@supabase/realtime-js` (transitive).
+  - **@supabase/ssr** (moderate) — depends on vulnerable `@supabase/supabase-js` (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
+
 ## 2026-05-19 07:12:56 UTC — Run #45
 - Item: 4.2 (Custom 404 / not-found page)
 - Result: SUCCESS
