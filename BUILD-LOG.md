@@ -28,6 +28,14 @@ Each entry is one autonomous build run. Newest at top.
   - **@supabase/supabase-js** (moderate) — depends on vulnerable `@supabase/realtime-js` (transitive).
   - **@supabase/ssr** (moderate) — depends on vulnerable `@supabase/supabase-js` (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
 
+- Post-push verification (commit 15871aa, 149s after push):
+  - olokas.com/ → HTTP 200, age=0 → new deploy promoted ✓
+  - olokas.com/blog/what-is-geo → HTTP 200, age=0, x-vercel-cache MISS → new SSG route live ✓
+  - olokas.com/blog/how-ai-search-picks-citations → HTTP 200, age=0 → new SSG route live ✓
+  - olokas.com/blog index → HTTP 200, lists "what-is-geo" link (1 match) and "how-ai-search-picks-citations" link (1 match) alongside the original /welcome post ✓
+  - olokas.com/sitemap.xml → lists what-is-geo (1 match) and how-ai-search-picks-citations (1 match) ✓
+  - DoD checklist for 4.3 satisfied: both posts render, /blog index shows all 3 posts (welcome + the two new), sitemap.xml includes them, tsc + next build clean.
+
 ## 2026-05-19 07:12:56 UTC — Run #45
 - Item: 4.2 (Custom 404 / not-found page)
 - Result: SUCCESS

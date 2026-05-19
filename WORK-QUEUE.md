@@ -377,7 +377,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** `next build` recognizes the new not-found file (visible in route table); /any-random-path returns 404 with the new page; build clean.
 
 ### 4.3 — First two real blog posts (1,500+ words each)
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit 15871aa)
 - **Files:** `content/posts/what-is-geo.mdx`, `content/posts/how-ai-search-picks-citations.mdx`
 - **Spec:**
   - Post 1: "What is GEO? (Generative Engine Optimization in 2026)" — definitional, 1,500–2,000 words. Target keyword: "generative engine optimization". Audience: SMB owners and marketing managers who've heard the term but don't have working definitions yet. Cover: what GEO is, how it differs from SEO, the four engines that matter, what a "GEO score" means in practice, 3 quick wins anyone can do today.
