@@ -27,6 +27,13 @@ Each entry is one autonomous build run. Newest at top.
   - **@supabase/realtime-js** (moderate) — depends on vulnerable `ws` (transitive carrier of GHSA-58qx-3vcg-4xpx).
   - **@supabase/supabase-js** (moderate) — depends on vulnerable `@supabase/realtime-js` (transitive).
   - **@supabase/ssr** (moderate) — depends on vulnerable `@supabase/supabase-js` (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
+- Post-push verification (commit 29d4043, 135s after push):
+  - olokas.com/ → HTTP 200, age=0, x-vercel-cache MISS → new deploy promoted ✓
+  - olokas.com/privacy → HTTP 200, age=0, x-vercel-cache MISS → new route live ✓
+    - Content check: page renders "Privacy Policy" headline, "Sub-processors" section, "Supabase" sub-processor entry, and the "placeholder copy" callout.
+  - olokas.com/terms → HTTP 200, age=0, x-vercel-cache MISS → new route live ✓
+    - Content check: page renders "Terms of Service" headline, "Acceptable use" + "Governing law" sections, and the "placeholder copy" callout.
+  - Home page footer regression check: `<a href="/privacy">Privacy</a>` and `<a href="/terms">Terms</a>` both rendered in the SiteFooter on olokas.com/.
 
 ## 2026-05-18 23:11:36 UTC — Run #43
 - Item: 4.0 (Marketing nav across all marketing pages)
