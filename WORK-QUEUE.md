@@ -368,7 +368,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Both pages render at HTTP 200, footer links to them, build clean. Operator reviews copy and updates if needed.
 
 ### 4.2 — Custom 404 / not-found page
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `app/not-found.tsx`
 - **Spec:**
   - Replace Next's default 404 with a branded page using `SiteNav` (from 4.0).

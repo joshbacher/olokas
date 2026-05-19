@@ -15,6 +15,19 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-19 07:12:56 UTC — Run #45
+- Item: 4.2 (Custom 404 / not-found page)
+- Result: SUCCESS
+- Files changed: 1 (1 new)
+- Notes: New `app/not-found.tsx` server component replaces Next.js's default 404 surface. Layout mirrors the existing marketing pages (`/privacy`, `/terms`): `SiteNav` at the top (Phase 4.0), centered `BrandMark` between the nav and the headline so the page reads as Olokas's own surface even when arrived at from a dead link, then a small uppercase "404" eyebrow, the headline "Page not found", the dry body copy from the spec ("That link goes somewhere we haven't built. Or it never existed. Hard to say."), and two CTAs (`<Button asChild><Link href="/">`) — primary "Back to home" + outline "Run a free audit" — followed by `SiteFooter`. Voice matches bible §4 (direct, mildly dry, no breathless filler). Metadata sets `robots: { index: false, follow: false }` so the 404 isn't indexed; the title flows through the root layout's `%s · Olokas` template producing "Page not found · Olokas". `next build` registers the new route as `ƒ /_not-found 153 B 87.3 kB` (dynamic because `SiteNav` reads `headers()` — same shape as the other marketing routes since 4.0). tsc clean; `next build` clean across 33 routes (28 dynamic, 2 static, 3 SSG including the new `_not-found`). Build-environment workaround unchanged from Run #44: `/sessions` 100% full and `/` at 98% so node_modules was symlinked from the leftover `/tmp/olokas-build-1779145487` clone (same package versions, same lockfile, including its prebuilt `@next/swc-linux-x64-gnu` native binary), with `NEXT_TEST_NATIVE_DIR` pointed at it to bypass Next.js's symlink-resolved fallback-download path. Purely a sandbox workaround; nothing committed beyond `app/not-found.tsx`.
+- Deferred advisories: `npm audit --omit=dev` reports 6 high/critical findings, ALL marked `fixAvailable: false`. Unchanged from Run #44 baseline (no dep changes this run). Per the cron's deferred-advisory branch this is AUDIT_DEFERRED, not AUDIT_FAILED.
+  - **next** (critical) — same Next.js 14.2.13 advisories tracked in M.1 (DoS in Server Actions, SSRF in Middleware, cache poisoning in RSC, XSS in App Router with CSP nonces, etc.). Cleared by the M.1 operator-only migration to Next.js 15.x.
+  - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
+  - **ws** (moderate) — GHSA-58qx-3vcg-4xpx. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Needs an upstream `@supabase/ssr` release that bumps the realtime-js chain off vulnerable `ws` versions; nothing the cron can land in a single run.
+  - **@supabase/realtime-js** (moderate) — depends on vulnerable `ws` (transitive carrier of GHSA-58qx-3vcg-4xpx).
+  - **@supabase/supabase-js** (moderate) — depends on vulnerable `@supabase/realtime-js` (transitive).
+  - **@supabase/ssr** (moderate) — depends on vulnerable `@supabase/supabase-js` (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
+
 ## 2026-05-19 03:21:00 UTC — Run #44
 - Item: 4.1 (Privacy Policy + Terms of Service pages)
 - Result: SUCCESS
