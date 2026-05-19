@@ -15,6 +15,19 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-19 03:21:00 UTC — Run #44
+- Item: 4.1 (Privacy Policy + Terms of Service pages)
+- Result: SUCCESS
+- Files changed: 3 (2 new, 1 modified)
+- Notes: New static marketing routes `app/(marketing)/privacy/page.tsx` and `app/(marketing)/terms/page.tsx`, both server components using the shared `SiteNav` (4.0) and `SiteFooter`, with explicit `metadata` exports (canonical URL, `robots: { index: true, follow: true }`, openGraph/twitter via `/og-default.png`). Each page opens with a `role="note"` callout flagging the copy as placeholder pending counsel review, then walks through the sections required by the spec (Privacy: collection, use, sub-processors covering Supabase + Stripe + Vercel + Resend + Anthropic/OpenAI/Perplexity/SerpAPI, retention, rights, cookies, international transfers, children, changes, contact; Terms: service, accounts, acceptable use, payment/refunds, content ownership, third-party engines, availability, disclaimers, liability cap, termination, changes, governing law placeholder, contact). `SiteFooter` updated to add `Privacy` and `Terms` links beside the existing `hello@olokas.com` mailto, wrapped in `<nav aria-label="Footer">` so the secondary nav has the right semantics. Both routes appear in `next build` output (`/privacy 194 B 94.2 kB`, `/terms 194 B 94.2 kB`) and are dynamic-rendered because `SiteNav` reads `headers()` for active-link state — same shape as the other marketing routes since 4.0. tsc clean; `next build` clean (26 static pages, no warnings beyond the pre-existing webpack big-string serialization notices). Build-environment workaround: `/sessions` was 100% full when this run started so the cron's standard `next build` couldn't be executed in-place — worked around by symlinking most of `node_modules` from a leftover prior-session clone (same package versions, same lockfile), pulling the missing `@next/swc-linux-x64-gnu` native binary from the npm registry into `/dev/shm` (tmpfs), and pointing `NEXT_TEST_NATIVE_DIR` at it. This is purely a sandbox-disk workaround; no code, no committed artifacts, no impact on what Vercel will see on push. Operator note: 1.4G+ of stale `/tmp/olokas-*` directories owned by `nobody` are sitting on the sandbox `/` filesystem from previous cron runs and can't be cleaned by the cron itself (no sudo); a host-level cleanup would prevent future runs from having to do this dance.
+- Deferred advisories: `npm audit --omit=dev` reports 6 high/critical findings, ALL marked `fixAvailable: false`. Unchanged from Run #43 baseline (no dep changes this run). Per the cron's deferred-advisory branch this is AUDIT_DEFERRED, not AUDIT_FAILED.
+  - **next** (critical) — same Next.js 14.2.13 advisories tracked in M.1 (DoS in Server Actions, SSRF in Middleware, cache poisoning in RSC, XSS in App Router with CSP nonces, etc.). Cleared by the M.1 operator-only migration to Next.js 15.x.
+  - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
+  - **ws** (moderate) — GHSA-58qx-3vcg-4xpx (uninitialized memory disclosure). Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Needs an upstream `@supabase/ssr` release that bumps the realtime-js chain off vulnerable `ws` versions; nothing the cron can land in a single run.
+  - **@supabase/realtime-js** (moderate) — depends on vulnerable `ws` (transitive carrier of GHSA-58qx-3vcg-4xpx).
+  - **@supabase/supabase-js** (moderate) — depends on vulnerable `@supabase/realtime-js` (transitive).
+  - **@supabase/ssr** (moderate) — depends on vulnerable `@supabase/supabase-js` (transitive). The whole supabase chain clears together when realtime-js ships a patched release.
+
 ## 2026-05-18 23:11:36 UTC — Run #43
 - Item: 4.0 (Marketing nav across all marketing pages)
 - Result: SUCCESS

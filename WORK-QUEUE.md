@@ -356,7 +356,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** All five marketing routes show the same nav; current-page styling lights up correctly; build + tsc clean; live verification shows /pricing, /audit, /blog, /vs/semrush, /vs/ahrefs, /vs/wordlift, /vs/seoptimer all returning 200 with the new nav.
 
 ### 4.1 — Privacy Policy + Terms of Service pages
-- **Status:** PENDING
+- **Status:** DONE (commit <pending>)
 - **Files:** `app/(marketing)/privacy/page.tsx`, `app/(marketing)/terms/page.tsx`, footer link updates in `components/site-footer.tsx`
 - **Spec:**
   - Two static server-component pages with reasonable boilerplate content (not legal-advice quality; clearly marked as placeholder copy operator must review with counsel before launch).
