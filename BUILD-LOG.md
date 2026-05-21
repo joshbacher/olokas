@@ -25,6 +25,9 @@ Each entry is one autonomous build run. Newest at top.
   - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
   - **ws** (moderate) — GHSA-58qx-3vcg-4xpx. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Clears when upstream `@supabase/ssr` bumps the realtime-js chain.
   - **@supabase/realtime-js**, **@supabase/supabase-js**, **@supabase/ssr** (moderate) — transitive `ws` chain; all clear together when realtime-js ships a patched release.
+- Post-push verification (commit d41b3a5, ~178s after push):
+  - olokas.com/ → HTTP 200, age=0 → new deploy promoted ✓
+  - No new app routes in this item (GitHub Actions workflows are build artifacts only); home page 200 confirms deploy is live.
 
 ## 2026-05-19 19:17:58 UTC — Run #46
 - Item: 4.3 (First two real blog posts — 1,500+ words each)

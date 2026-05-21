@@ -387,7 +387,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Both posts render at `/blog/what-is-geo` and `/blog/how-ai-search-picks-citations`. `/blog` index lists all 3 posts (with the original `welcome` post). Sitemap.xml includes them. tsc + next build clean.
 
 ### 4.4 — GitHub Actions cron workflows (wire up the existing /api/cron/* routes)
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit d41b3a5)
 - **Files:** `.github/workflows/dispatch-scans.yml`, `.github/workflows/recover-stuck-jobs.yml`, `.github/workflows/daily-rollup.yml`, `.github/workflows/payment-recovery.yml`, `.github/workflows/generate-reports.yml`, `.github/workflows/send-reports.yml`
 - **Spec:**
   - Each workflow is a separate YAML file with `on.schedule` matching the cadence documented in `code-scaffold.md` cron table (dispatch-scans every 15 min, recover-stuck-jobs every 30 min, daily-rollup daily 23:55 UTC, payment-recovery daily 9am UTC, generate-reports Mondays 5am UTC, send-reports Mondays 6am UTC).
