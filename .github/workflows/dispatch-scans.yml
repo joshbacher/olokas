@@ -1,0 +1,29 @@
+name: Cron — dispatch-scans
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: cron-dispatch-scans
+  cancel-in-progress: false
+
+jobs:
+  dispatch-scans:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Invoke /api/cron/dispatch-scans
+        run: |
+          HTTP_STATUS=$(curl -s -o /tmp/response.txt -w '%{http_code}' \
+            --max-time 30 \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://olokas.com/api/cron/dispatch-scans")
+          echo "Response body: $(cat /tmp/response.txt)"
+          echo "HTTP status: $HTTP_STATUS"
+          if [[ "$HTTP_STATUS" -lt 200 || "$HTTP_STATUS" -ge 300 ]]; then
+            echo "::error::Non-2xx response from /api/cron/dispatch-scans: $HTTP_STATUS"
+            exit 1
+          fi

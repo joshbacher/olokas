@@ -15,6 +15,17 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-21 23:07:07 UTC — Run #47
+- Item: 4.4 (GitHub Actions cron workflows)
+- Result: SUCCESS
+- Files changed: 7 (6 new workflow YAML files + 1 new README)
+- Notes: Six GitHub Actions workflow files created under `.github/workflows/` wiring the six existing `/api/cron/*` stub routes to scheduled triggers. Cadences match the spec: `dispatch-scans` every 15 min, `recover-stuck-jobs` every 30 min, `daily-rollup` daily 23:55 UTC, `payment-recovery` daily 09:00 UTC, `generate-reports` Mondays 05:00 UTC, `send-reports` Mondays 06:00 UTC. Each workflow uses `on: [schedule, workflow_dispatch]` (manual trigger included), a single curl step with `--max-time` (30s for the high-frequency jobs, 60–120s for the weekly jobs), failure on non-2xx HTTP status, and `concurrency: cancel-in-progress: false` to prevent pile-up. `.github/workflows/README.md` documents all six workflows, their schedules, and the operator setup step (add `CRON_SECRET` to GitHub Actions secrets AND Vercel env vars). Operator action item flagged in commit body. tsc clean; `next build` clean across 36 routes (same route table as Run #46, no new app routes added). Build-environment workaround: `/sessions` disk 100% full as usual; redirected npm cache to `/dev/shm/npm-cache` (`npm install --cache /dev/shm/npm-cache`) — clean install succeeded with all modules intact including `next/node_modules/postcss`.
+- Deferred advisories: `npm audit --omit=dev` reports high/critical findings, ALL marked `fixAvailable: false`. Unchanged from Runs #43–#46 baseline (no dep changes this run). Per the cron's deferred-advisory branch this is AUDIT_DEFERRED, not AUDIT_FAILED.
+  - **next** (critical) — same Next.js 14.2.13 advisories tracked in M.1. Cleared by the M.1 operator-only migration to Next.js 15.x.
+  - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
+  - **ws** (moderate) — GHSA-58qx-3vcg-4xpx. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Clears when upstream `@supabase/ssr` bumps the realtime-js chain.
+  - **@supabase/realtime-js**, **@supabase/supabase-js**, **@supabase/ssr** (moderate) — transitive `ws` chain; all clear together when realtime-js ships a patched release.
+
 ## 2026-05-19 19:17:58 UTC — Run #46
 - Item: 4.3 (First two real blog posts — 1,500+ words each)
 - Result: SUCCESS
