@@ -302,7 +302,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Real subscription lifecycle is implemented. Build clean. (E2E test requires real Stripe webhook events.)
 
 ### 3.13 — Onboarding flow (4-step post-checkout)
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit d08a7fd)
 - **Files:** `app/app/onboarding/page.tsx`, `app/app/onboarding/actions.ts`, `components/onboarding/*`
 - **Spec:**
   - 4 steps as separate components, switched via local state (no URL routing per step):
@@ -368,7 +368,7 @@ These items assume the Supabase migration has been run (it has — see commit no
 - **DoD:** Both pages render at HTTP 200, footer links to them, build clean. Operator reviews copy and updates if needed.
 
 ### 4.2 — Custom 404 / not-found page
-- **Status:** DONE (commit <pending>)
+- **Status:** DONE (commit d08a7fd)
 - **Files:** `app/not-found.tsx`
 - **Spec:**
   - Replace Next's default 404 with a branded page using `SiteNav` (from 4.0).

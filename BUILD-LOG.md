@@ -24,6 +24,10 @@ Each entry is one autonomous build run. Newest at top.
   - **next** (critical) — same Next.js 14.2.13 advisories tracked in M.1. Cleared by the M.1 operator-only migration to Next.js 15.x.
   - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
   - **ws** (moderate) — GHSA-58qx-3vcg-4xpx. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Clears when upstream `@supabase/ssr` bumps the realtime-js chain.
+- Post-push verification (commit d08a7fd, ~117s after push):
+  - olokas.com/ → HTTP 200, age=0 → new deploy promoted ✓
+  - /app/onboarding now appears in the deployed route table (5.23 kB bundle)
+  - DoD checklist for 3.13 satisfied: 4-step wizard implemented, query suggestions served, scan jobs dispatched on completion, onboarding_completed_at tracked, skip-to-dashboard works without marking complete.
 
 ## 2026-05-21 23:07:07 UTC — Run #47
 - Item: 4.4 (GitHub Actions cron workflows)
