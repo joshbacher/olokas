@@ -15,6 +15,16 @@ Each entry is one autonomous build run. Newest at top.
 
 ---
 
+## 2026-05-22 03:12:17 UTC — Run #48
+- Item: 3.13 (Onboarding flow — 4-step post-checkout wizard)
+- Result: SUCCESS
+- Files changed: 8 (3 new components, 2 new app files, 1 new migration, 1 new server actions file, 1 updated dashboard)
+- Notes: Implemented the full 4-step post-checkout onboarding wizard. New files: `app/app/onboarding/actions.ts` (server actions for domain upsert, query suggestions up to 10, completing onboarding with query + competitor + scan-job inserts, and skip), `app/app/onboarding/page.tsx` (server component guards with `onboarding_completed_at` check, redirects completed users to dashboard, loads existing domains), `components/onboarding/OnboardingFlow.tsx` (client component orchestrating step state with progress indicator), `components/onboarding/Step1Domain.tsx` (confirm/add primary domain — shows existing domains as selectable buttons, falls back to text input), `components/onboarding/Step2Queries.tsx` (suggest up to 10 queries from `suggestQueriesFromUrl` + 5 extended templates, all checked by default, inline edit, respects `query_limit`), `components/onboarding/Step3Competitors.tsx` (optional up to 5 competitor domains per query, applied globally across all selected queries), `components/onboarding/Step4Schedule.tsx` (review summary — domain, N queries, M competitors, 4 engines; calls `completeOnboardingAction` which inserts `customer_queries`, `query_competitors`, `jobs` × 4 engines, sets `onboarding_completed_at`, redirects to `/app/dashboard?onboarding=complete`). `supabase/migrations/0002_onboarding.sql` adds `onboarding_completed_at TIMESTAMPTZ` to `customers`. Dashboard updated to accept `searchParams` and show a "Your first scan is running" banner when `?onboarding=complete` is present. "Skip for now" on each step calls `skipOnboardingAction()` which redirects to `/app/dashboard` without marking complete. tsc clean; `next build` clean across 37 routes (36 from Run #47 plus `/app/onboarding` at 5.23 kB). Build-environment workaround: `/sessions` disk 100% full as usual; node_modules symlinked from leftover `/tmp/olokas-repo` clone (same package versions, same lockfile — verified `diff package-lock.json` identical), `NEXT_TEST_NATIVE_DIR` pointed at prebuilt `@next/swc-linux-x64-gnu` native binary from the same clone.
+- Deferred advisories: `npm audit --omit=dev` reports high/critical findings, ALL marked `fixAvailable: false`. Unchanged from Runs #43–#47 baseline (no dep changes this run). Per the cron's deferred-advisory branch this is AUDIT_DEFERRED, not AUDIT_FAILED.
+  - **next** (critical) — same Next.js 14.2.13 advisories tracked in M.1. Cleared by the M.1 operator-only migration to Next.js 15.x.
+  - **postcss** (moderate) — GHSA-qx2v-qp2m-jg93. Pulled in via `next/node_modules/postcss`; cleared when `next` is bumped.
+  - **ws** (moderate) — GHSA-58qx-3vcg-4xpx. Pulled in via `@supabase/realtime-js → @supabase/supabase-js → @supabase/ssr`. Clears when upstream `@supabase/ssr` bumps the realtime-js chain.
+
 ## 2026-05-21 23:07:07 UTC — Run #47
 - Item: 4.4 (GitHub Actions cron workflows)
 - Result: SUCCESS

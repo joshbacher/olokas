@@ -64,7 +64,12 @@ interface ScanFromSupabase {
 const SCAN_FETCH_LIMIT = 200;
 const RECENT_ACTIVITY_LIMIT = 10;
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const justCompletedOnboarding = searchParams?.["onboarding"] === "complete";
   const supabase = createClient();
   // We don't strictly need the user object here — RLS handles scoping — but
   // pulling it lets us greet by email and keeps the auth state explicit at
@@ -136,10 +141,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      {justCompletedOnboarding ? (
+        <div
+          role="status"
+          className="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm font-medium text-foreground"
+        >
+          ✓ Your first scan is running. Results show up here once it completes.
+        </div>
+      ) : null}
+
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-sm text-muted-foreground">
-          {isFreshAccount
+          {isFreshAccount && !justCompletedOnboarding
             ? "Welcome to Olokas. Add a domain to start measuring AI search visibility."
             : `Signed in as ${user?.email ?? "your account"}.`}
         </p>
